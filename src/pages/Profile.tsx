@@ -1,0 +1,358 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { auth, db } from '../firebase';
+import { signOut } from 'firebase/auth';
+import { useAuth } from '../contexts/AuthContext';
+import { Loader2, LogOut, Heart, Image as ImageIcon, Settings, User } from 'lucide-react';
+import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { Product, GalleryPost } from '../types';
+
+export default function Profile() {
+  const { userProfile, loading } = useAuth();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<'saved' | 'uploads' | 'settings'>('saved');
+  const [savedProducts, setSavedProducts] = useState<Product[]>([]);
+  const [isLoadingSaved, setIsLoadingSaved] = useState(false);
+  const [galleryUploads, setGalleryUploads] = useState<GalleryPost[]>([]);
+  const [isLoadingUploads, setIsLoadingUploads] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  useEffect(() => {
+    if (userProfile) {
+      setEditName(userProfile.name || '');
+    }
+  }, [userProfile]);
+
+  useEffect(() => {
+    if (!loading && !userProfile) {
+      navigate('/login');
+    }
+  }, [userProfile, loading, navigate]);
+
+  useEffect(() => {
+    const fetchSavedProducts = async () => {
+      if (!userProfile?.savedOutfits || userProfile.savedOutfits.length === 0) {
+        setSavedProducts([]);
+        return;
+      }
+      setIsLoadingSaved(true);
+      try {
+        // Fetch products by IDs
+        const productsRef = collection(db, 'products');
+        // Firestore 'in' query supports up to 10 items.
+        // For a real app with >10 saved items, chunking or client-side filtering is needed.
+        const chunks = [];
+        for (let i = 0; i < userProfile.savedOutfits.length; i += 10) {
+          chunks.push(userProfile.savedOutfits.slice(i, i + 10));
+        }
+        
+        let allProducts: Product[] = [];
+        for (const chunk of chunks) {
+          const q = query(productsRef, where('__name__', 'in', chunk));
+          const querySnapshot = await getDocs(q);
+          const products = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+          allProducts = [...allProducts, ...products];
+        }
+        setSavedProducts(allProducts);
+      } catch (error) {
+        console.error("Error fetching saved products:", error);
+      } finally {
+        setIsLoadingSaved(false);
+      }
+    };
+
+    const fetchGalleryUploads = async () => {
+      if (!userProfile) return;
+      setIsLoadingUploads(true);
+      try {
+        const q = query(
+          collection(db, 'gallery_posts'),
+          where('authorUid', '==', userProfile.uid)
+        );
+        const querySnapshot = await getDocs(q);
+        const uploads = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as GalleryPost));
+        setGalleryUploads(uploads);
+      } catch (error) {
+        console.error("Error fetching gallery uploads:", error);
+      } finally {
+        setIsLoadingUploads(false);
+      }
+    };
+
+    if (activeTab === 'saved' && userProfile) {
+      fetchSavedProducts();
+    } else if (activeTab === 'uploads' && userProfile) {
+      fetchGalleryUploads();
+    }
+  }, [activeTab, userProfile]);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/');
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    if (!userProfile) return;
+    setIsSavingProfile(true);
+    try {
+      const userRef = doc(db, 'users', userProfile.uid);
+      await updateDoc(userRef, {
+        name: editName
+      });
+      setIsEditingProfile(false);
+      // userProfile will be updated by the onSnapshot listener in AuthContext
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
+  if (loading || !userProfile) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center">
+        <Loader2 className="animate-spin text-pe-gold" size={32} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="px-4 py-8 md:py-12 max-w-6xl mx-auto min-h-[80vh]">
+      <div className="flex flex-col md:flex-row gap-8">
+        
+        {/* Sidebar */}
+        <div className="w-full md:w-64 flex-shrink-0">
+          <div className="bg-pe-surface border border-pe-divider rounded-2xl p-6 sticky top-24">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-12 h-12 rounded-full bg-pe-dark flex items-center justify-center text-pe-gold text-xl font-serif">
+                {userProfile.name ? userProfile.name.charAt(0).toUpperCase() : <User size={24} />}
+              </div>
+              <div>
+                <h2 className="font-medium text-pe-text">{userProfile.name || 'Customer'}</h2>
+                <p className="text-xs text-pe-text-muted truncate w-32">{userProfile.email}</p>
+              </div>
+            </div>
+
+            <nav className="space-y-2">
+              <button
+                onClick={() => setActiveTab('saved')}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                  activeTab === 'saved' ? 'bg-pe-gold/10 text-pe-gold' : 'text-pe-text-muted hover:bg-pe-dark hover:text-pe-text'
+                }`}
+              >
+                <Heart size={18} />
+                Saved Outfits
+              </button>
+              <button
+                onClick={() => setActiveTab('uploads')}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                  activeTab === 'uploads' ? 'bg-pe-gold/10 text-pe-gold' : 'text-pe-text-muted hover:bg-pe-dark hover:text-pe-text'
+                }`}
+              >
+                <ImageIcon size={18} />
+                My Gallery Uploads
+              </button>
+              <button
+                onClick={() => setActiveTab('settings')}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                  activeTab === 'settings' ? 'bg-pe-gold/10 text-pe-gold' : 'text-pe-text-muted hover:bg-pe-dark hover:text-pe-text'
+                }`}
+              >
+                <Settings size={18} />
+                Account Settings
+              </button>
+            </nav>
+
+            <div className="mt-8 pt-8 border-t border-pe-divider">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-400/10 transition-colors"
+              >
+                <LogOut size={18} />
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1">
+          {activeTab === 'saved' && (
+            <div>
+              <h2 className="font-serif text-2xl text-pe-text mb-6">Saved Outfits</h2>
+              {isLoadingSaved ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="animate-spin text-pe-gold" size={32} />
+                </div>
+              ) : savedProducts.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+                  {savedProducts.map((product) => (
+                    <Link key={product.id} to={`/product/${product.id}`} className="group block">
+                      <div className="aspect-[3/4] rounded-2xl overflow-hidden bg-pe-surface mb-4 relative">
+                        {product.images?.[0] ? (
+                          <img
+                            src={product.images[0]}
+                            alt={product.name}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-pe-text-muted">
+                            <ImageIcon size={32} />
+                          </div>
+                        )}
+                      </div>
+                      <h3 className="font-medium text-pe-text text-sm md:text-base truncate">{product.name}</h3>
+                      <p className="text-pe-gold text-sm mt-1">₹{product.price.toLocaleString()}</p>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-pe-surface border border-pe-divider rounded-2xl">
+                  <Heart size={48} className="mx-auto text-pe-text-muted mb-4" />
+                  <h3 className="text-lg font-medium text-pe-text mb-2">No saved outfits yet</h3>
+                  <p className="text-pe-text-muted mb-6">Explore our collections and save your favorites.</p>
+                  <Link to="/collections" className="inline-block px-6 py-3 bg-pe-gold text-pe-dark rounded-full font-medium hover:bg-pe-gold-light transition-colors">
+                    Explore Collections
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'uploads' && (
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="font-serif text-2xl text-pe-text">My Gallery Uploads</h2>
+                <Link to="/gallery" className="px-4 py-2 bg-pe-gold text-pe-dark rounded-full text-sm font-medium hover:bg-pe-gold-light transition-colors flex items-center gap-2">
+                  <ImageIcon size={16} />
+                  <span>Upload Photo</span>
+                </Link>
+              </div>
+              {isLoadingUploads ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="animate-spin text-pe-gold" size={32} />
+                </div>
+              ) : galleryUploads.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+                  {galleryUploads.map((post) => (
+                    <div key={post.id} className="group block relative">
+                      <div className="aspect-[3/4] rounded-2xl overflow-hidden bg-pe-surface mb-4 relative">
+                        {post.images?.[0] ? (
+                          <img
+                            src={post.images[0]}
+                            alt={post.groomName}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-pe-text-muted">
+                            <ImageIcon size={32} />
+                          </div>
+                        )}
+                        <div className="absolute top-2 right-2">
+                          {post.approved ? (
+                            <span className="px-2 py-1 bg-green-500/80 backdrop-blur-md text-white text-xs font-medium rounded-full">
+                              Approved
+                            </span>
+                          ) : (
+                            <span className="px-2 py-1 bg-yellow-500/80 backdrop-blur-md text-white text-xs font-medium rounded-full">
+                              Pending
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <h3 className="font-medium text-pe-text text-sm md:text-base truncate">{post.groomName}</h3>
+                      <p className="text-pe-text-muted text-xs mt-1">{new Date(post.createdAt).toLocaleDateString()}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-pe-surface border border-pe-divider rounded-2xl">
+                  <ImageIcon size={48} className="mx-auto text-pe-text-muted mb-4" />
+                  <h3 className="text-lg font-medium text-pe-text mb-2">Share your special moments</h3>
+                  <p className="text-pe-text-muted mb-6">Upload photos of you wearing Pune Ethnic to be featured in our Grooms Gallery.</p>
+                  <Link to="/gallery" className="inline-block px-6 py-3 bg-pe-gold text-pe-dark rounded-full font-medium hover:bg-pe-gold-light transition-colors">
+                    Go to Gallery
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'settings' && (
+            <div>
+              <h2 className="font-serif text-2xl text-pe-text mb-6">Account Settings</h2>
+              <div className="bg-pe-surface border border-pe-divider rounded-2xl p-6 md:p-8">
+                <div className="space-y-6 max-w-md">
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-pe-text-muted mb-2">Full Name</label>
+                    <input
+                      type="text"
+                      disabled={!isEditingProfile}
+                      value={isEditingProfile ? editName : (userProfile.name || '')}
+                      onChange={(e) => setEditName(e.target.value)}
+                      className={`w-full px-4 py-3 bg-pe-dark border border-pe-divider rounded-xl text-sm text-pe-text ${!isEditingProfile ? 'opacity-70 cursor-not-allowed' : 'focus:outline-none focus:border-pe-gold'}`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-pe-text-muted mb-2">Email Address</label>
+                    <input
+                      type="email"
+                      disabled
+                      value={userProfile.email || ''}
+                      className="w-full px-4 py-3 bg-pe-dark border border-pe-divider rounded-xl text-sm text-pe-text opacity-70 cursor-not-allowed"
+                    />
+                    <p className="text-xs text-pe-text-muted mt-2">Email address cannot be changed.</p>
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-pe-text-muted mb-2">Account Role</label>
+                    <div className="px-4 py-3 bg-pe-dark border border-pe-divider rounded-xl text-sm text-pe-text opacity-70">
+                      <span className="capitalize">{userProfile.role}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="pt-6 border-t border-pe-divider">
+                    {isEditingProfile ? (
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => {
+                            setIsEditingProfile(false);
+                            setEditName(userProfile.name || '');
+                          }}
+                          className="flex-1 px-6 py-3 border border-pe-divider text-pe-text rounded-xl text-sm font-medium hover:bg-pe-surface transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleSaveProfile}
+                          disabled={isSavingProfile || !editName.trim()}
+                          className="flex-1 px-6 py-3 bg-pe-gold text-pe-dark rounded-xl text-sm font-medium disabled:opacity-50 hover:bg-pe-gold-light transition-colors flex justify-center items-center"
+                        >
+                          {isSavingProfile ? <Loader2 className="animate-spin" size={18} /> : 'Save Changes'}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setIsEditingProfile(true)}
+                        className="w-full px-6 py-3 bg-pe-gold text-pe-dark rounded-xl text-sm font-medium hover:bg-pe-gold-light transition-colors"
+                      >
+                        Edit Profile
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

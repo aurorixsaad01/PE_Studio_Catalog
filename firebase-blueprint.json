@@ -1,0 +1,44 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user of the application.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique ID of the user" },
+        "email": { "type": "string", "format": "email", "description": "Email of the user" },
+        "role": { "type": "string", "enum": ["admin", "customer"], "description": "Role of the user" },
+        "name": { "type": "string", "description": "Name of the user" },
+        "savedOutfits": { "type": "array", "items": { "type": "string" }, "description": "Array of saved outfit IDs" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "GalleryPost": {
+      "title": "Gallery Post",
+      "description": "A post in the Real Grooms Gallery.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique ID of the post" },
+        "groomName": { "type": "string", "description": "Name of the groom" },
+        "weddingDate": { "type": "string", "format": "date", "description": "Date of the wedding" },
+        "outfitCategory": { "type": "string", "description": "Category of the outfit" },
+        "caption": { "type": "string", "description": "Caption or message" },
+        "images": { "type": "array", "items": { "type": "string" }, "description": "Array of image URLs" },
+        "createdAt": { "type": "number", "description": "Timestamp of creation" },
+        "approved": { "type": "boolean", "description": "Whether the post is approved by admin" },
+        "authorUid": { "type": "string", "description": "UID of the user who created the post" }
+      },
+      "required": ["id", "groomName", "weddingDate", "outfitCategory", "caption", "images", "createdAt", "approved", "authorUid"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "Stores user profiles and roles."
+    },
+    "gallery_posts/{postId}": {
+      "schema": "GalleryPost",
+      "description": "Stores all gallery posts submitted by users."
+    }
+  }
+}

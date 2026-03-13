@@ -1,0 +1,99 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: gallery_posts
+    // Document ID: {postId}
+    // Fields:
+    //   - id: string (required)
+    //   - groomName: string (required, length < 50)
+    //   - weddingDate: string (required, length < 50)
+    //   - outfitCategory: string (required, in ['Sherwani', 'Jodhpuri Suit', 'Indo-Western', 'Tuxedo', 'Kurta'])
+    //   - caption: string (required, length < 1000)
+    //   - images: list (required, size <= 5, all strings)
+    //   - createdAt: number (required)
+    //   - approved: boolean (required)
+    //   - authorUid: string (required)
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.authorUid;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "aurorixsaad@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function isValidList(list, maxSize) {
+      return list is list && list.size() <= maxSize;
+    }
+
+    function isValidGalleryPost(data) {
+      return hasOnlyAllowedFields(['id', 'groomName', 'weddingDate', 'outfitCategory', 'caption', 'images', 'createdAt', 'approved', 'authorUid']) &&
+             hasRequiredFields(['id', 'groomName', 'weddingDate', 'outfitCategory', 'caption', 'images', 'createdAt', 'approved', 'authorUid']) &&
+             data.id is string && data.id.size() > 0 && data.id.size() < 100 &&
+             data.groomName is string && data.groomName.size() > 0 && data.groomName.size() < 100 &&
+             data.weddingDate is string && data.weddingDate.size() > 0 && data.weddingDate.size() < 50 &&
+             data.outfitCategory in ['Sherwani', 'Jodhpuri Suit', 'Indo-Western', 'Tuxedo', 'Kurta', 'Accessories', 'Sangeet Ceremony'] &&
+             data.caption is string && data.caption.size() <= 1000 &&
+             isValidList(data.images, 5) &&
+             data.createdAt is number &&
+             data.approved is bool &&
+             data.authorUid is string && data.authorUid.size() > 0 && data.authorUid.size() < 100;
+    }
+
+    function isValidUser(data) {
+      return hasOnlyAllowedFields(['uid', 'email', 'role', 'name', 'savedOutfits']) &&
+             hasRequiredFields(['uid', 'email', 'role']) &&
+             data.uid is string && data.uid.size() > 0 && data.uid.size() < 100 &&
+             data.email is string && data.email.size() > 0 && data.email.size() < 100 &&
+             data.role in ['admin', 'customer'] &&
+             (!('name' in data) || (data.name is string && data.name.size() < 100)) &&
+             (!('savedOutfits' in data) || isValidList(data.savedOutfits, 100));
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && isValidUser(request.resource.data) && ((isOwner(userId) && request.resource.data.role == 'customer') || isAdmin());
+      allow update: if isAuthenticated() && isValidUser(request.resource.data) && ((isOwner(userId) && request.resource.data.role == resource.data.role) || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    match /gallery_posts/{postId} {
+      // Anyone can read approved posts. Admins can read all posts. Authors can read their own posts.
+      allow read: if (resource.data.approved == true) || isAdmin() || isDocOwner();
+      
+      // Users can create posts, but they must be unapproved initially.
+      allow create: if isAuthenticated() && 
+                    isValidGalleryPost(request.resource.data) && 
+                    request.resource.data.authorUid == request.auth.uid &&
+                    request.resource.data.approved == false;
+      
+      // Only admins can update or delete posts.
+      allow update: if isAdmin() && isValidGalleryPost(request.resource.data);
+      allow delete: if isAdmin();
+    }
+  }
+}
