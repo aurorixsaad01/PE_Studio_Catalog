@@ -22,10 +22,7 @@ const INITIAL_PRODUCTS: Product[] = [
     fabric: 'Raw Silk',
     colors: ['Ivory', 'Gold'],
     description: 'A masterpiece of traditional craftsmanship, this ivory sherwani features intricate zardozi embroidery. Perfect for the modern groom who appreciates classic elegance.',
-    images: [
-      'https://picsum.photos/seed/sherwani1/800/1200',
-      'https://picsum.photos/seed/sherwani1_detail/800/1200'
-    ],
+    images: [],
     suggestedAccessories: ['p6', 'p7', 'p8', 'p9'],
     createdAt: Date.now(),
   },
@@ -39,10 +36,7 @@ const INITIAL_PRODUCTS: Product[] = [
     fabric: 'Italian Velvet',
     colors: ['Midnight Blue', 'Black'],
     description: 'Exude royal charm in this tailored Jodhpuri suit. The rich velvet fabric and structured silhouette make it an ideal choice for evening receptions.',
-    images: [
-      'https://picsum.photos/seed/jodhpuri1/800/1200',
-      'https://picsum.photos/seed/jodhpuri1_side/800/1200'
-    ],
+    images: [],
     suggestedAccessories: ['p8'],
     createdAt: Date.now() - 1000,
   },
@@ -56,9 +50,7 @@ const INITIAL_PRODUCTS: Product[] = [
     fabric: 'Jacquard Silk',
     colors: ['Mint Green', 'Peach'],
     description: 'A contemporary take on ethnic wear. This asymmetrical Indo-Western set in pastel mint is perfect for daytime events and engagements.',
-    images: [
-      'https://picsum.photos/seed/indowestern1/800/1200'
-    ],
+    images: [],
     createdAt: Date.now() - 2000,
   },
   {
@@ -71,9 +63,7 @@ const INITIAL_PRODUCTS: Product[] = [
     fabric: 'Premium Wool Blend',
     colors: ['Black'],
     description: 'The quintessential black tuxedo with satin lapels. Tailored to perfection for a sharp, sophisticated look at any formal reception.',
-    images: [
-      'https://picsum.photos/seed/tuxedo1/800/1200'
-    ],
+    images: [],
     createdAt: Date.now() - 3000,
   },
   {
@@ -86,9 +76,7 @@ const INITIAL_PRODUCTS: Product[] = [
     fabric: 'Cotton Silk',
     colors: ['Mustard Yellow'],
     description: 'Bright and festive, this comfortable cotton silk kurta is designed specifically for Haldi ceremonies and vibrant daytime celebrations.',
-    images: [
-      'https://picsum.photos/seed/kurta1/800/1200'
-    ],
+    images: [],
     createdAt: Date.now() - 4000,
   },
   {
@@ -101,9 +89,7 @@ const INITIAL_PRODUCTS: Product[] = [
     fabric: 'Chanderi Silk',
     colors: ['Gold', 'Red'],
     description: 'A regal safa (turban) adorned with subtle embroidery, completing the traditional groom look.',
-    images: [
-      'https://picsum.photos/seed/safa1/800/800'
-    ],
+    images: [],
     createdAt: Date.now() - 5000,
   },
   {
@@ -116,9 +102,7 @@ const INITIAL_PRODUCTS: Product[] = [
     fabric: 'Velvet',
     colors: ['Maroon', 'Gold'],
     description: 'A rich maroon velvet stole with heavy gold border work. Adds a royal touch to any Sherwani or Jodhpuri suit.',
-    images: [
-      'https://picsum.photos/seed/stole1/800/1200'
-    ],
+    images: [],
     createdAt: Date.now() - 6000,
   },
   {
@@ -131,9 +115,7 @@ const INITIAL_PRODUCTS: Product[] = [
     fabric: 'Leather & Silk',
     colors: ['Gold'],
     description: 'Traditional handcrafted mojaris featuring intricate zari embroidery. Designed for comfort and style.',
-    images: [
-      'https://picsum.photos/seed/mojari1/800/800'
-    ],
+    images: [],
     createdAt: Date.now() - 7000,
   },
   {
@@ -146,9 +128,7 @@ const INITIAL_PRODUCTS: Product[] = [
     fabric: 'Semi-precious stones',
     colors: ['Pearl', 'Emerald'],
     description: 'A multi-layered pearl mala with a statement Kundan pendant. The perfect jewelry piece for the groom.',
-    images: [
-      'https://picsum.photos/seed/mala1/800/800'
-    ],
+    images: [],
     createdAt: Date.now() - 8000,
   }
 ];
@@ -156,10 +136,12 @@ const INITIAL_PRODUCTS: Product[] = [
 interface StoreState {
   products: Product[];
   eventCategories: EventCategory[];
+  heroVideo: string;
   addProduct: (product: Product) => void;
   updateProduct: (id: string, product: Partial<Product>) => void;
   deleteProduct: (id: string) => void;
   updateEventCategory: (name: EventType, image: string) => void;
+  updateHeroVideo: (url: string) => void;
 }
 
 export const useStore = create<StoreState>()(
@@ -167,16 +149,34 @@ export const useStore = create<StoreState>()(
     (set) => ({
       products: INITIAL_PRODUCTS,
       eventCategories: INITIAL_EVENTS,
-      addProduct: (product) => set((state) => ({ products: [product, ...state.products] })),
-      updateProduct: (id, updatedFields) => set((state) => ({
-        products: state.products.map(p => p.id === id ? { ...p, ...updatedFields } : p)
-      })),
+      heroVideo: "",
+      addProduct: (product) => set((state) => {
+        const newProducts = product.featured 
+          ? state.products.map(p => ({ ...p, featured: false }))
+          : state.products;
+        return { products: [product, ...newProducts] };
+      }),
+      updateProduct: (id, updatedFields) => set((state) => {
+        const isSettingFeatured = updatedFields.featured === true;
+        return {
+          products: state.products.map(p => {
+            if (p.id === id) {
+              return { ...p, ...updatedFields };
+            }
+            if (isSettingFeatured) {
+              return { ...p, featured: false };
+            }
+            return p;
+          })
+        };
+      }),
       deleteProduct: (id) => set((state) => ({
         products: state.products.filter(p => p.id !== id)
       })),
       updateEventCategory: (name, image) => set((state) => ({
         eventCategories: state.eventCategories.map(e => e.name === name ? { ...e, image } : e)
-      }))
+      })),
+      updateHeroVideo: (url) => set({ heroVideo: url })
     }),
     {
       name: 'pe-studio-storage',

@@ -34,12 +34,12 @@ const SplashScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
         className="w-full h-full object-cover"
         onEnded={onComplete}
       >
-        <source src="https://res.cloudinary.com/dqxlc84z6/video/upload/v1773315905/Premium_Logo_Animation_for_Mobile_App_yhxfjh.mp4" type="video/mp4" />
+        <source src="https://res.cloudinary.com/dqxlc84z6/video/upload/v1773768444/Minimal_Logo_Intro_Video_Generation_vst2yg.mov" />
       </video>
       
       <button 
         onClick={onComplete}
-        className="absolute bottom-8 right-8 px-4 py-2 bg-black/50 backdrop-blur-md text-white text-xs uppercase tracking-widest rounded-full border border-white/20 hover:bg-black/70 transition-colors z-10"
+        className="absolute bottom-8 right-8 px-4 py-2 bg-black/50 backdrop-blur-md text-white text-[11px] font-medium uppercase tracking-widest rounded-full border border-white/20 hover:bg-black/70 transition-colors z-10"
       >
         Skip Intro
       </button>
@@ -68,7 +68,8 @@ export default function App() {
         {!showSplash && (
           <Routes>
             <Route path="/" element={<Layout />}>
-              <Route index element={<Home />} />
+              <Route index element={<Navigate to="/discover" replace />} />
+              <Route path="discover" element={<Home />} />
               <Route path="product/:id" element={<ProductDetail />} />
               <Route path="categories" element={<Categories />} />
               <Route path="collections" element={<Collections />} />
@@ -76,9 +77,10 @@ export default function App() {
               <Route path="login" element={<Login />} />
               <Route path="signup" element={<Signup />} />
               <Route path="profile" element={<Profile />} />
+              <Route path="manage-products" element={<Admin />} />
               <Route path="pe-control" element={<AdminLogin />} />
-              <Route path="pe-control/dashboard" element={<Admin />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="pe-control/dashboard" element={<Navigate to="/manage-products" replace />} />
+              <Route path="*" element={<Navigate to="/discover" replace />} />
             </Route>
           </Routes>
         )}

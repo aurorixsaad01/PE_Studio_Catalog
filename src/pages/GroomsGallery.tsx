@@ -4,7 +4,7 @@ import { collection, query, where, orderBy, onSnapshot, addDoc, serverTimestamp,
 import { db, auth } from '../firebase';
 import { GalleryPost } from '../types';
 import { processAndUploadImage } from '../services/uploadService';
-import { Upload, X, Loader2, Image as ImageIcon, CheckCircle2, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { Upload, X, Loader2, Image as ImageIcon, CheckCircle2, ChevronLeft, ChevronRight, Trash2, ChevronDown } from 'lucide-react';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -45,20 +45,20 @@ export default function GroomsGallery() {
     : posts.filter(post => post.outfitCategory === activeFilter);
 
   return (
-    <div className="min-h-screen bg-pe-dark pt-24 pb-16 px-4">
+    <div className="min-h-screen pt-24 pb-16 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
-            <h1 className="font-serif text-4xl md:text-5xl text-pe-text mb-4">Real Grooms Gallery</h1>
-            <p className="text-pe-text-muted max-w-2xl">
+            <h1 className="ipad-page-title text-pe-text mb-4">Real Grooms Gallery</h1>
+            <p className="text-[15px] text-pe-text-muted max-w-2xl">
               Discover how real grooms styled their Pune Ethnic outfits. Get inspired by their wedding moments and share your own.
             </p>
           </div>
           <button
             onClick={() => setIsUploadModalOpen(true)}
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-pe-gold text-pe-dark rounded-full font-medium uppercase tracking-widest hover:bg-pe-gold-light transition-colors whitespace-nowrap"
+            className="ipad-button bg-pe-gold text-pe-dark text-[15px] font-medium whitespace-nowrap"
           >
-            <Upload size={18} />
+            <Upload size={18} className="mr-2" />
             Upload Your Moment
           </button>
         </div>
@@ -69,7 +69,7 @@ export default function GroomsGallery() {
             <button
               key={category}
               onClick={() => setActiveFilter(category)}
-              className={`px-6 py-2.5 rounded-full text-sm font-medium uppercase tracking-widest whitespace-nowrap transition-colors border ${
+              className={`px-6 py-2.5 rounded-full text-[13px] font-medium uppercase tracking-widest whitespace-nowrap transition-colors border ${
                 activeFilter === category
                   ? 'bg-pe-gold text-pe-dark border-pe-gold'
                   : 'bg-transparent text-pe-text border-pe-divider hover:border-pe-gold/50'
@@ -86,10 +86,10 @@ export default function GroomsGallery() {
             <Loader2 className="animate-spin text-pe-gold" size={40} />
           </div>
         ) : filteredPosts.length === 0 ? (
-          <div className="text-center py-20 border border-pe-divider rounded-2xl bg-pe-surface/30">
+          <div className="text-center py-20 ipad-card bg-pe-surface/30">
             <ImageIcon className="mx-auto text-pe-text-muted mb-4" size={48} />
-            <h3 className="text-xl font-serif text-pe-text mb-2">No posts found</h3>
-            <p className="text-pe-text-muted">Be the first to share your wedding moment in this category.</p>
+            <h3 className="ipad-section-title text-pe-text mb-2">No posts found</h3>
+            <p className="text-[15px] text-pe-text-muted">Be the first to share your wedding moment in this category.</p>
           </div>
         ) : (
           <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
@@ -98,21 +98,21 @@ export default function GroomsGallery() {
                 key={post.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="break-inside-avoid relative group cursor-pointer rounded-2xl overflow-hidden bg-pe-surface border border-pe-divider"
+                className="break-inside-avoid relative group cursor-pointer bg-pe-surface ipad-card"
                 onClick={() => setSelectedPost(post)}
               >
-                <div className="relative overflow-hidden">
+                <div className="relative overflow-hidden rounded-t-[18px]">
                   <img 
                     src={post.images[0]} 
                     alt={`${post.groomName}'s wedding`}
-                    className="w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="w-full object-cover ipad-card-img"
                     referrerPolicy="no-referrer"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
                 <div className="p-4">
-                  <h3 className="font-serif text-lg text-pe-text mb-1">{post.groomName}</h3>
-                  <div className="flex items-center justify-between text-xs text-pe-text-muted uppercase tracking-wider">
+                  <h3 className="ipad-card-title text-pe-text mb-1">{post.groomName}</h3>
+                  <div className="flex items-center justify-between text-[11px] text-pe-text-muted uppercase tracking-wider">
                     <span>{post.outfitCategory}</span>
                     <span>{new Date(post.weddingDate).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}</span>
                   </div>
@@ -145,6 +145,8 @@ function UploadModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
   });
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   
   const { userProfile } = useAuth();
   const navigate = useNavigate();
@@ -174,19 +176,54 @@ function UploadModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
 
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []) as File[];
-    if (images.length + files.length > 5) {
+  const processFiles = (files: File[]) => {
+    const validFiles = files.filter(file => {
+      if (file.size > 10 * 1024 * 1024) {
+        setErrorMsg('Some images exceed the 10MB limit.');
+        return false;
+      }
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        setErrorMsg('Only JPG, PNG, and WEBP formats are allowed.');
+        return false;
+      }
+      return true;
+    });
+
+    if (images.length + validFiles.length > 5) {
       setErrorMsg('Maximum 5 images allowed.');
       return;
     }
-    setErrorMsg('');
+    
+    if (validFiles.length > 0) {
+      setErrorMsg('');
+      const newImages = [...images, ...validFiles];
+      setImages(newImages);
 
-    const newImages = [...images, ...files];
-    setImages(newImages);
+      const newPreviews = validFiles.map(file => URL.createObjectURL(file));
+      setImagePreviews([...imagePreviews, ...newPreviews]);
+    }
+  };
 
-    const newPreviews = files.map(file => URL.createObjectURL(file));
-    setImagePreviews([...imagePreviews, ...newPreviews]);
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []) as File[];
+    processFiles(files);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files) as File[];
+    processFiles(files);
   };
 
   const removeImage = (index: number) => {
@@ -251,10 +288,10 @@ function UploadModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative w-full max-w-2xl bg-pe-dark border border-pe-divider rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+        className="relative w-full max-w-2xl bg-pe-surface border border-pe-divider rounded-[18px] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
       >
         <div className="flex items-center justify-between p-6 border-b border-pe-divider">
-          <h2 className="font-serif text-2xl text-pe-text">Share Your Moment</h2>
+          <h2 className="ipad-section-title text-pe-text">Share Your Moment</h2>
           <button onClick={onClose} className="p-2 text-pe-text-muted hover:text-pe-text transition-colors rounded-full hover:bg-pe-surface">
             <X size={20} />
           </button>
@@ -263,11 +300,11 @@ function UploadModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
         <div className="p-6 overflow-y-auto no-scrollbar flex-1">
           {step === 'auth' && (
             <div className="text-center py-12">
-              <h3 className="text-xl font-serif text-pe-text mb-4">Sign in to upload</h3>
-              <p className="text-pe-text-muted mb-8">Please sign in to your account to share your wedding photos with our community.</p>
+              <h3 className="ipad-section-title text-pe-text mb-4">Sign in to upload</h3>
+              <p className="text-[15px] text-pe-text-muted mb-8">Please sign in to your account to share your wedding photos with our community.</p>
               <button
                 onClick={handleLoginRedirect}
-                className="px-8 py-3 bg-pe-gold text-pe-dark rounded-full font-medium hover:bg-pe-gold-light transition-colors inline-flex items-center gap-3"
+                className="ipad-button bg-pe-gold text-pe-dark text-[15px] font-medium inline-flex items-center gap-3"
               >
                 Go to Login
               </button>
@@ -278,58 +315,83 @@ function UploadModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
             <form id="upload-form" onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs uppercase tracking-widest text-pe-gold mb-2">Groom Name</label>
+                  <label className="block text-[13px] font-medium text-pe-gold mb-2">Groom Name</label>
                   <input
                     type="text"
                     required
                     maxLength={50}
                     value={formData.groomName}
                     onChange={e => setFormData({ ...formData, groomName: e.target.value })}
-                    className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-sm text-pe-text"
+                    className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-[15px] text-pe-text"
                     placeholder="e.g. Rahul Sharma"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs uppercase tracking-widest text-pe-gold mb-2">Wedding Date</label>
+                  <label className="block text-[13px] font-medium text-pe-gold mb-2">Wedding Date</label>
                   <input
                     type="date"
                     required
                     value={formData.weddingDate}
                     onChange={e => setFormData({ ...formData, weddingDate: e.target.value })}
-                    className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-sm text-pe-text [color-scheme:dark]"
+                    className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-[15px] text-pe-text [color-scheme:dark]"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs uppercase tracking-widest text-pe-gold mb-2">Outfit Category</label>
-                <select
-                  required
-                  value={formData.outfitCategory}
-                  onChange={e => setFormData({ ...formData, outfitCategory: e.target.value })}
-                  className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-sm text-pe-text appearance-none"
+              <div className="relative">
+                <label className="block text-[13px] font-medium text-pe-gold mb-2">Outfit Category</label>
+                <div 
+                  className="w-full px-4 py-3 bg-[#1b0e06] border border-pe-gold/25 rounded-[10px] cursor-pointer flex items-center justify-between text-[15px] text-pe-text"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
-                  {CATEGORIES.filter(c => c !== 'All').map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
+                  <span>{formData.outfitCategory}</span>
+                  <ChevronDown size={18} className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                </div>
+                
+                <AnimatePresence>
+                  {isDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute z-20 w-full mt-2 bg-[#1b0e06] border border-pe-gold/25 rounded-[10px] overflow-hidden shadow-xl"
+                    >
+                      {CATEGORIES.filter(c => c !== 'All').map(c => (
+                        <div
+                          key={c}
+                          onClick={() => {
+                            setFormData({ ...formData, outfitCategory: c });
+                            setIsDropdownOpen(false);
+                          }}
+                          className={`px-4 py-3 cursor-pointer text-[15px] transition-colors duration-150 ${
+                            formData.outfitCategory === c 
+                              ? 'bg-pe-gold/15 text-pe-gold' 
+                              : 'text-pe-text hover:bg-pe-gold/15'
+                          }`}
+                        >
+                          {c}
+                        </div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-widest text-pe-gold mb-2">Caption / Message</label>
+                <label className="block text-[13px] font-medium text-pe-gold mb-2">Caption / Message</label>
                 <textarea
                   required
                   maxLength={1000}
                   rows={3}
                   value={formData.caption}
                   onChange={e => setFormData({ ...formData, caption: e.target.value })}
-                  className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-sm text-pe-text resize-none"
+                  className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-[15px] text-pe-text resize-none"
                   placeholder="Tell us about your special day and your Pune Ethnic experience..."
                 />
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-widest text-pe-gold mb-2">Wedding Photos (Max 5)</label>
+                <label className="block text-[13px] font-medium text-pe-gold mb-2">Wedding Photos (Max 5)</label>
                 {errorMsg && <p className="text-red-500 text-sm mb-2">{errorMsg}</p>}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-2">
                   {imagePreviews.map((preview, idx) => (
@@ -343,9 +405,19 @@ function UploadModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
                     </div>
                   ))}
                   {imagePreviews.length < 5 && (
-                    <label className="aspect-[4/5] rounded-xl border-2 border-dashed border-pe-divider flex flex-col items-center justify-center text-pe-text-muted hover:border-pe-gold hover:text-pe-gold transition-colors cursor-pointer bg-pe-surface/50">
+                    <label 
+                      className={`aspect-[4/5] rounded-xl border-2 border-dashed flex flex-col items-center justify-center transition-colors cursor-pointer ${
+                        isDragging 
+                          ? 'border-pe-gold bg-pe-gold/10 text-pe-gold' 
+                          : 'border-pe-divider bg-pe-surface/50 text-pe-text-muted hover:border-pe-gold hover:text-pe-gold'
+                      }`}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                    >
                       <Upload size={24} className="mb-2" />
                       <span className="text-xs font-medium uppercase tracking-wider text-center px-2">Upload</span>
+                      <span className="text-[10px] text-center px-2 mt-1 opacity-70">Max 10MB</span>
                       <input 
                         type="file" 
                         multiple 
@@ -366,11 +438,11 @@ function UploadModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
               <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <CheckCircle2 size={32} />
               </div>
-              <h3 className="text-2xl font-serif text-pe-text mb-4">Upload Successful!</h3>
-              <p className="text-pe-text-muted mb-8">Thank you for sharing your special moment. Your post has been submitted and is pending admin approval. It will appear in the gallery shortly.</p>
+              <h3 className="ipad-section-title text-pe-text mb-4">Upload Successful!</h3>
+              <p className="text-[15px] text-pe-text-muted mb-8">Thank you for sharing your special moment. Your post has been submitted and is pending admin approval. It will appear in the gallery shortly.</p>
               <button
                 onClick={onClose}
-                className="px-8 py-3 bg-pe-gold text-pe-dark rounded-full font-medium hover:bg-pe-gold-light transition-colors"
+                className="ipad-button bg-pe-gold text-pe-dark text-[15px] font-medium"
               >
                 Close
               </button>
@@ -384,7 +456,7 @@ function UploadModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
               type="button"
               onClick={onClose}
               disabled={isUploading}
-              className="px-6 py-3 bg-pe-dark border border-pe-divider text-pe-text rounded-xl text-sm font-medium hover:border-pe-gold transition-colors disabled:opacity-50"
+              className="px-6 py-3 bg-pe-surface border border-pe-divider text-pe-text rounded-full text-[15px] font-medium hover:border-pe-gold transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
@@ -392,7 +464,7 @@ function UploadModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
               type="submit"
               form="upload-form"
               disabled={isUploading}
-              className="px-8 py-3 bg-pe-gold text-pe-dark rounded-xl text-sm font-medium hover:bg-pe-gold-light transition-colors flex items-center gap-2 disabled:opacity-50"
+              className="ipad-button bg-pe-gold text-pe-dark text-[15px] font-medium flex items-center gap-2 disabled:opacity-50"
             >
               {isUploading ? (
                 <>
@@ -426,7 +498,7 @@ function PostDetailModal({ post, onClose }: { post: GalleryPost; onClose: () => 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="relative w-full max-w-5xl bg-pe-dark border border-pe-divider rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh]"
+        className="relative w-full max-w-5xl bg-pe-surface border border-pe-divider rounded-[18px] shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh]"
       >
         <button 
           onClick={onClose} 
@@ -473,15 +545,15 @@ function PostDetailModal({ post, onClose }: { post: GalleryPost; onClose: () => 
         {/* Details Section */}
         <div className="w-full md:w-2/5 flex flex-col bg-pe-surface border-l border-pe-divider">
           <div className="hidden md:flex justify-end p-4 border-b border-pe-divider">
-            <button onClick={onClose} className="p-2 text-pe-text-muted hover:text-pe-text transition-colors rounded-full hover:bg-pe-dark">
+            <button onClick={onClose} className="p-2 text-pe-text-muted hover:text-pe-text transition-colors rounded-full hover:bg-black/20">
               <X size={20} />
             </button>
           </div>
           
           <div className="p-6 md:p-8 overflow-y-auto flex-1">
             <div className="mb-6">
-              <h2 className="font-serif text-3xl text-pe-text mb-2">{post.groomName}</h2>
-              <div className="flex items-center gap-4 text-sm text-pe-text-muted uppercase tracking-wider">
+              <h2 className="ipad-page-title text-pe-text mb-2">{post.groomName}</h2>
+              <div className="flex items-center gap-4 text-[13px] text-pe-text-muted uppercase tracking-wider">
                 <span className="text-pe-gold">{post.outfitCategory}</span>
                 <span>•</span>
                 <span>{new Date(post.weddingDate).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</span>
@@ -489,7 +561,7 @@ function PostDetailModal({ post, onClose }: { post: GalleryPost; onClose: () => 
             </div>
             
             <div className="prose prose-invert max-w-none">
-              <p className="text-pe-text leading-relaxed whitespace-pre-wrap">{post.caption}</p>
+              <p className="ipad-body-text text-pe-text whitespace-pre-wrap">{post.caption}</p>
             </div>
           </div>
         </div>

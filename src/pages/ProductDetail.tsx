@@ -21,6 +21,8 @@ export default function ProductDetail() {
   const [showTryModal, setShowTryModal] = useState(false);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [tryOnForm, setTryOnForm] = useState({ name: '', phone: '', date: '' });
+  const [tryOnSubmitted, setTryOnSubmitted] = useState(false);
   
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
 
@@ -213,9 +215,9 @@ export default function ProductDetail() {
   };
 
   return (
-    <div className="bg-pe-dark min-h-screen pb-24 md:pb-12">
+    <div className="min-h-screen pb-24 md:pb-12">
       {/* Mobile Header */}
-      <header className="md:hidden fixed top-0 inset-x-0 z-50 bg-pe-dark/80 backdrop-blur-md border-b border-pe-divider px-4 h-14 flex items-center justify-between">
+      <header className="md:hidden fixed top-0 inset-x-0 z-50 ipad-nav px-4 h-14 flex items-center justify-between">
         <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-pe-text">
           <ChevronLeft size={24} strokeWidth={1.5} />
         </button>
@@ -236,12 +238,30 @@ export default function ProductDetail() {
           <div className="relative w-full h-[65vh] md:h-[70vh] bg-pe-surface md:rounded-2xl overflow-hidden">
             <div className="overflow-hidden h-full" ref={emblaRef}>
               <div className="flex h-full">
-                {product.images.map((img, idx) => (
+                {product.video && (
+                  <div className="flex-[0_0_100%] min-w-0 h-full relative">
+                    <video 
+                      src={product.video} 
+                      className="w-full h-full object-cover" 
+                      controls 
+                      playsInline 
+                      autoPlay 
+                      muted 
+                      loop
+                    />
+                  </div>
+                )}
+                {(!product.video && (!product.images || product.images.length === 0)) && (
+                  <div className="flex-[0_0_100%] min-w-0 h-full relative flex items-center justify-center bg-pe-surface border border-pe-divider">
+                    <span className="text-pe-text-muted">No Image Available</span>
+                  </div>
+                )}
+                {product.images?.map((img, idx) => (
                   <div className="flex-[0_0_100%] min-w-0 h-full relative" key={idx}>
                     <img 
                       src={img} 
                       alt={`${product.name} ${idx + 1}`} 
-                      className="w-full h-full object-contain" 
+                      className="w-full h-full object-cover" 
                       referrerPolicy="no-referrer"
                     />
                   </div>
@@ -251,11 +271,17 @@ export default function ProductDetail() {
             
             {/* Image Indicators */}
             <div className="absolute bottom-6 inset-x-0 flex justify-center gap-2">
-              {product.images.map((_, idx) => (
+              {product.video && (
+                <button
+                  onClick={() => emblaApi?.scrollTo(0)}
+                  className={cn("w-2 h-2 rounded-full transition-all", activeImage === 0 ? "bg-pe-gold w-6" : "bg-white/50")}
+                />
+              )}
+              {product.images?.map((_, idx) => (
                 <button
                   key={idx}
-                  onClick={() => emblaApi?.scrollTo(idx)}
-                  className={cn("w-2 h-2 rounded-full transition-all", activeImage === idx ? "bg-pe-gold w-6" : "bg-white/50")}
+                  onClick={() => emblaApi?.scrollTo(product.video ? idx + 1 : idx)}
+                  className={cn("w-2 h-2 rounded-full transition-all", activeImage === (product.video ? idx + 1 : idx) ? "bg-pe-gold w-6" : "bg-white/50")}
                 />
               ))}
             </div>
@@ -263,16 +289,32 @@ export default function ProductDetail() {
 
           {/* Thumbnails */}
           <div className="hidden md:flex gap-4 overflow-x-auto no-scrollbar">
-            {product.images.map((img, idx) => (
+            {product.video && (
               <button
-                key={idx}
-                onClick={() => emblaApi?.scrollTo(idx)}
+                onClick={() => emblaApi?.scrollTo(0)}
                 className={cn(
-                  "w-20 h-24 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-colors",
-                  activeImage === idx ? "border-pe-gold" : "border-transparent hover:border-pe-gold/50"
+                  "w-20 h-24 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-colors relative",
+                  activeImage === 0 ? "border-pe-gold" : "border-transparent hover:border-pe-gold/50"
                 )}
               >
-                <img src={img} alt="" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+                <video src={product.video} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                  <div className="w-6 h-6 rounded-full bg-black/50 flex items-center justify-center">
+                    <div className="w-0 h-0 border-t-4 border-t-transparent border-l-6 border-l-white border-b-4 border-b-transparent ml-1" />
+                  </div>
+                </div>
+              </button>
+            )}
+            {product.images?.map((img, idx) => (
+              <button
+                key={idx}
+                onClick={() => emblaApi?.scrollTo(product.video ? idx + 1 : idx)}
+                className={cn(
+                  "w-20 h-24 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-colors",
+                  activeImage === (product.video ? idx + 1 : idx) ? "border-pe-gold" : "border-transparent hover:border-pe-gold/50"
+                )}
+              >
+                <img src={img} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               </button>
             ))}
           </div>
@@ -283,7 +325,7 @@ export default function ProductDetail() {
           <div className="flex justify-between items-start mb-2">
             <div>
               <p className="text-pe-gold text-xs uppercase tracking-[0.2em] font-medium mb-2">{product.category}</p>
-              <h1 className="font-serif text-3xl md:text-4xl leading-tight text-pe-text font-bold">{product.name}</h1>
+              <h1 className="ipad-page-title leading-tight text-pe-text">{product.name}</h1>
             </div>
             {/* Desktop Actions */}
             <div className="hidden md:flex items-center gap-4">
@@ -296,7 +338,10 @@ export default function ProductDetail() {
             </div>
           </div>
           
-          <p className="font-serif text-2xl text-pe-gold mb-8">₹{product.price.toLocaleString('en-IN')}</p>
+          <div className="mb-8 mt-2">
+            <p className="text-[#d4af37] font-medium text-[16px] tracking-[0.02em]">Visit store for pricing</p>
+            <p className="text-white/70 text-[14px] mt-1">Custom fittings available</p>
+          </div>
 
           <div className="space-y-8">
             {/* Description */}
@@ -353,20 +398,26 @@ export default function ProductDetail() {
             {/* Shop the Look */}
             {suggestedProducts.length > 0 && (
               <div className="pt-8 border-t border-pe-divider">
-                <h2 className="font-serif text-2xl mb-6 text-pe-gold">Shop the Look</h2>
+                <h2 className="ipad-section-title mb-6 text-pe-gold">Shop the Look</h2>
                 <div className="flex overflow-x-auto gap-4 no-scrollbar pb-4">
                   {suggestedProducts.map(accessory => (
                     <Link key={accessory.id} to={`/product/${accessory.id}`} className="flex-shrink-0 w-36 group">
                       <div className="aspect-[3/4] rounded-xl overflow-hidden bg-pe-surface mb-3 border border-transparent group-hover:border-pe-gold transition-colors">
-                        <img 
-                          src={accessory.images[0]} 
-                          alt={accessory.name} 
-                          className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105" 
-                          referrerPolicy="no-referrer"
-                        />
+                        {accessory.images && accessory.images.length > 0 ? (
+                          <img 
+                            src={accessory.images[0]} 
+                            alt={accessory.name} 
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-pe-text-muted text-xs">
+                            No Image
+                          </div>
+                        )}
                       </div>
                       <p className="font-medium text-sm truncate text-pe-text">{accessory.name}</p>
-                      <p className="text-pe-gold text-xs mt-1">₹{accessory.price.toLocaleString('en-IN')}</p>
+                      <p className="text-[#d4af37] text-xs mt-1">Visit store for pricing</p>
                     </Link>
                   ))}
                 </div>
@@ -377,14 +428,15 @@ export default function ProductDetail() {
           {/* CTA */}
           <div className="mt-12 md:mt-auto pt-8">
             <button 
-              onClick={() => setShowTryModal(true)}
-              className="w-full bg-pe-gold text-pe-dark py-4 rounded-full uppercase tracking-widest text-sm font-medium hover:bg-pe-gold-light transition-colors shadow-md"
+              onClick={() => {
+                setTryOnSubmitted(false);
+                setTryOnForm({ name: '', phone: '', date: '' });
+                setShowTryModal(true);
+              }}
+              className="w-full flex items-center justify-center bg-[#d4af37] text-black h-12 rounded-full text-[15px] font-medium hover:-translate-y-0.5 hover:brightness-110 transition-all duration-200"
             >
-              Request to Try In-Store
+              Request Try-On In Store
             </button>
-            <p className="text-center text-xs text-pe-text-muted mt-4 flex items-center justify-center gap-1">
-              <Info size={14} /> Show this screen to our staff
-            </p>
           </div>
         </div>
       </div>
@@ -405,11 +457,11 @@ export default function ProductDetail() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-pe-dark border border-pe-divider rounded-3xl z-50 p-6 shadow-2xl max-h-[90vh] flex flex-col"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-pe-surface border border-pe-divider rounded-3xl z-50 p-6 shadow-2xl max-h-[90vh] flex flex-col"
             >
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h3 className="font-serif text-2xl text-pe-text">Size Guide</h3>
+                  <h3 className="ipad-section-title text-pe-text">Size Guide</h3>
                   <p className="text-pe-gold text-xs uppercase tracking-widest mt-1">{product.category}</p>
                 </div>
                 <button onClick={() => setShowSizeGuide(false)} className="p-2 text-pe-text-muted hover:text-pe-text">
@@ -444,47 +496,96 @@ export default function ProductDetail() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-pe-dark border border-pe-divider rounded-3xl z-50 p-6 shadow-2xl"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-pe-surface border border-pe-divider rounded-3xl z-50 p-6 shadow-2xl"
             >
-              <div className="flex justify-end mb-2">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="ipad-section-title text-pe-text">Request Try-On In Store</h3>
                 <button onClick={() => setShowTryModal(false)} className="p-2 text-pe-text-muted hover:text-pe-text">
                   <X size={20} />
                 </button>
               </div>
               
-              <div className="flex flex-col items-center text-center">
-                <div className="w-32 h-40 rounded-xl overflow-hidden mb-6 border border-pe-divider">
-                  <img src={product.images[0]} alt={product.name} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
-                </div>
-                
-                <h3 className="font-serif text-2xl text-pe-text mb-2">{product.name}</h3>
-                <p className="text-pe-gold font-medium mb-6">₹{product.price.toLocaleString('en-IN')}</p>
-                
-                <div className="bg-pe-surface p-4 rounded-xl border border-pe-gold/20 mb-8 w-full">
-                  <p className="text-pe-text text-sm leading-relaxed">
-                    "Show this screen to our staff to try this outfit."
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-3 w-full">
-                  <button 
-                    onClick={() => {
-                      setShowTryModal(false);
-                      handleSave();
-                    }}
-                    className="w-full py-3 bg-pe-surface border border-pe-divider text-pe-text rounded-full text-sm uppercase tracking-widest font-medium hover:border-pe-gold transition-colors flex items-center justify-center gap-2"
-                  >
-                    <Heart size={16} className={isSaved ? "fill-pe-gold text-pe-gold" : ""} /> 
-                    {isSaved ? "Saved to Favorites" : "Save to Favorites"}
-                  </button>
+              {tryOnSubmitted ? (
+                <div className="flex flex-col items-center text-center py-8">
+                  <div className="w-16 h-16 rounded-full bg-pe-gold/20 flex items-center justify-center mb-6">
+                    <Check size={32} className="text-pe-gold" />
+                  </div>
+                  <h4 className="text-xl font-medium text-pe-text mb-2">Request Received</h4>
+                  <p className="text-pe-text-muted">Our team will contact you shortly to arrange your visit.</p>
                   <button 
                     onClick={() => setShowTryModal(false)}
-                    className="w-full py-3 bg-pe-gold text-pe-dark rounded-full text-sm uppercase tracking-widest font-medium hover:bg-pe-gold-light transition-colors"
+                    className="mt-8 w-full ipad-button bg-pe-gold text-pe-dark text-[15px] font-medium"
                   >
                     Close
                   </button>
                 </div>
-              </div>
+              ) : (
+                <form 
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    setTryOnSubmitted(true);
+                  }}
+                  className="flex flex-col gap-4"
+                >
+                  <div className="bg-pe-dark/50 p-4 rounded-xl flex gap-4 items-center mb-2">
+                    <div className="w-16 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-pe-surface border border-pe-divider">
+                      {product.images && product.images.length > 0 ? (
+                        <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-pe-text-muted text-[10px]">
+                          No Image
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-xs text-pe-gold uppercase tracking-widest mb-1">Selected Product</p>
+                      <p className="text-pe-text font-medium">{product.name}</p>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-pe-text-muted mb-1">Full Name</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={tryOnForm.name}
+                      onChange={e => setTryOnForm({...tryOnForm, name: e.target.value})}
+                      className="w-full bg-pe-dark border border-pe-divider rounded-xl px-4 py-3 text-pe-text focus:outline-none focus:border-pe-gold transition-colors"
+                      placeholder="Enter your name"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-pe-text-muted mb-1">Phone Number</label>
+                    <input 
+                      type="tel" 
+                      required
+                      value={tryOnForm.phone}
+                      onChange={e => setTryOnForm({...tryOnForm, phone: e.target.value})}
+                      className="w-full bg-pe-dark border border-pe-divider rounded-xl px-4 py-3 text-pe-text focus:outline-none focus:border-pe-gold transition-colors"
+                      placeholder="Enter your phone number"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-pe-text-muted mb-1">Preferred Visit Date</label>
+                    <input 
+                      type="date" 
+                      required
+                      value={tryOnForm.date}
+                      onChange={e => setTryOnForm({...tryOnForm, date: e.target.value})}
+                      className="w-full bg-pe-dark border border-pe-divider rounded-xl px-4 py-3 text-pe-text focus:outline-none focus:border-pe-gold transition-colors"
+                    />
+                  </div>
+                  
+                  <button 
+                    type="submit"
+                    className="w-full mt-4 flex items-center justify-center bg-[#d4af37] text-black h-12 rounded-full text-[15px] font-medium hover:-translate-y-0.5 hover:brightness-110 transition-all duration-200"
+                  >
+                    Confirm Visit Request
+                  </button>
+                </form>
+              )}
             </motion.div>
           </>
         )}

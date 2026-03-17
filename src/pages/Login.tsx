@@ -57,10 +57,10 @@ export default function Login() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-      <div className="max-w-md w-full bg-pe-surface border border-pe-divider rounded-2xl p-8 shadow-2xl">
+      <div className="max-w-md w-full bg-pe-surface ipad-card p-8 shadow-2xl">
         <div className="text-center mb-8">
-          <h1 className="font-serif text-3xl text-pe-text">Welcome Back</h1>
-          <p className="text-pe-text-muted mt-2">Sign in to your account</p>
+          <h1 className="ipad-page-title text-pe-text">Welcome Back</h1>
+          <p className="text-[15px] text-pe-text-muted mt-2">Sign in to your account</p>
         </div>
 
         {error && (
@@ -71,25 +71,25 @@ export default function Login() {
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label className="block text-xs uppercase tracking-widest text-pe-gold mb-2">Email Address</label>
+            <label className="block text-[13px] font-medium text-pe-gold mb-2">Email Address</label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-pe-dark border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-sm text-pe-text"
+              className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-[15px] text-pe-text"
               placeholder="you@example.com"
             />
           </div>
 
           <div>
-            <label className="block text-xs uppercase tracking-widest text-pe-gold mb-2">Password</label>
+            <label className="block text-[13px] font-medium text-pe-gold mb-2">Password</label>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-pe-dark border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-sm text-pe-text"
+              className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-[15px] text-pe-text"
               placeholder="••••••••"
             />
           </div>
@@ -97,7 +97,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3 bg-pe-gold text-pe-dark rounded-xl font-medium hover:bg-pe-gold-light transition-colors flex items-center justify-center disabled:opacity-50"
+            className="w-full ipad-button bg-pe-gold text-pe-dark text-[15px] font-medium flex items-center justify-center disabled:opacity-50"
           >
             {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Sign In'}
           </button>
@@ -105,20 +105,20 @@ export default function Login() {
 
         <div className="mt-6 flex items-center gap-4">
           <div className="h-px bg-pe-divider flex-1"></div>
-          <span className="text-xs uppercase tracking-widest text-pe-text-muted">Or continue with</span>
+          <span className="text-[11px] font-medium uppercase tracking-widest text-pe-text-muted">Or continue with</span>
           <div className="h-px bg-pe-divider flex-1"></div>
         </div>
 
         <button
           onClick={handleGoogleLogin}
           disabled={isSubmitting}
-          className="mt-6 w-full py-3 bg-white text-black rounded-xl font-medium hover:bg-gray-100 transition-colors flex items-center justify-center gap-3 disabled:opacity-50"
+          className="mt-6 w-full ipad-button bg-white text-black text-[15px] font-medium flex items-center justify-center gap-3 disabled:opacity-50"
         >
           <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
           Google
         </button>
 
-        <p className="mt-8 text-center text-sm text-pe-text-muted">
+        <p className="mt-8 text-center text-[13px] text-pe-text-muted">
           Don't have an account?{' '}
           <Link to="/signup" className="text-pe-gold hover:underline">
             Sign up

@@ -21,6 +21,7 @@ export interface Product {
   images: string[];
   video?: string;
   suggestedAccessories?: string[]; // IDs of other products
+  featured?: boolean;
   createdAt: number;
 }
 

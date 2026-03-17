@@ -3,7 +3,7 @@ import { Plus, Edit2, Trash2, Image as ImageIcon, X, Upload, ChevronLeft, Chevro
 import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../store';
 import { Category, EventType, Product, GalleryPost } from '../types';
-import { processAndUploadImage } from '../services/uploadService';
+import { processAndUploadImage, uploadVideo } from '../services/uploadService';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,7 +14,7 @@ export default function Admin() {
   const { userProfile, loading, signOut } = useAuth();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<'products' | 'events' | 'gallery'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'events' | 'gallery' | 'hero'>('products');
   
   const products = useStore(state => state.products);
   const addProduct = useStore(state => state.addProduct);
@@ -33,13 +33,13 @@ export default function Admin() {
 
   useEffect(() => {
     if (!loading && (!userProfile || userProfile.role !== 'admin')) {
-      navigate('/');
+      navigate('/discover');
     }
   }, [userProfile, loading, navigate]);
 
   if (loading || !userProfile || userProfile.role !== 'admin') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-pe-dark">
+      <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="animate-spin text-pe-gold" size={32} />
       </div>
     );
@@ -47,7 +47,7 @@ export default function Admin() {
 
   const handleLogout = async () => {
     await signOut();
-    navigate('/');
+    navigate('/discover');
   };
 
   const handleEdit = (product: Product) => {
@@ -75,6 +75,11 @@ export default function Admin() {
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentProduct) return;
+
+    if (!currentProduct.images || currentProduct.images.length < 3) {
+      alert('Please upload at least 3 images for the product.');
+      return;
+    }
 
     if (products.some(p => p.id === currentProduct.id)) {
       updateProduct(currentProduct.id!, currentProduct);
@@ -114,8 +119,10 @@ export default function Admin() {
     }
   };
 
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
+    const files = Array.from(e.target.files || []) as File[];
     if (!files.length || !currentProduct) return;
 
     const currentImages = currentProduct.images || [];
@@ -126,7 +133,7 @@ export default function Admin() {
 
     setIsUploading(true);
     try {
-      const uploadedUrls = await Promise.all(files.map(processAndUploadImage));
+      const uploadedUrls = await Promise.all(files.map(f => processAndUploadImage(f, 'products/images')));
       setCurrentProduct({
         ...currentProduct,
         images: [...currentImages, ...uploadedUrls]
@@ -139,6 +146,41 @@ export default function Admin() {
       // Reset input
       e.target.value = '';
     }
+  };
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !currentProduct) return;
+
+    if (file.type !== 'video/mp4') {
+      alert('Only MP4 video format is supported.');
+      return;
+    }
+
+    if (file.size > 50 * 1024 * 1024) { // 50MB limit
+      alert('Video must be less than 50MB.');
+      return;
+    }
+
+    setIsUploadingVideo(true);
+    try {
+      const uploadedUrl = await uploadVideo(file);
+      setCurrentProduct({
+        ...currentProduct,
+        video: uploadedUrl
+      });
+    } catch (error) {
+      console.error('Video upload error:', error);
+      alert('Failed to upload video. Please try again.');
+    } finally {
+      setIsUploadingVideo(false);
+      e.target.value = '';
+    }
+  };
+
+  const removeVideo = () => {
+    if (!currentProduct) return;
+    setCurrentProduct({ ...currentProduct, video: undefined });
   };
 
   const removeImage = (index: number) => {
@@ -183,7 +225,7 @@ export default function Admin() {
         <div className="flex items-center gap-4">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-pe-surface text-pe-text text-sm uppercase tracking-widest font-medium hover:bg-pe-dark border border-pe-divider transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-pe-surface text-pe-text text-sm uppercase tracking-widest font-medium hover:bg-black/20 border border-pe-divider transition-colors"
           >
             <LogOut size={16} />
             <span className="hidden md:inline">Logout</span>
@@ -225,6 +267,14 @@ export default function Admin() {
         >
           Gallery Moderation
         </button>
+        <button
+          onClick={() => setActiveTab('hero')}
+          className={`px-6 py-3 text-sm uppercase tracking-widest font-medium transition-colors border-b-2 ${
+            activeTab === 'hero' ? 'border-pe-gold text-pe-gold' : 'border-transparent text-pe-text-muted hover:text-pe-text'
+          }`}
+        >
+          Hero Video
+        </button>
       </div>
 
       {activeTab === 'products' ? (
@@ -234,21 +284,20 @@ export default function Admin() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-pe-dark/50 border-b border-pe-divider">
+              <tr className="bg-pe-surface/50 border-b border-pe-divider">
                 <th className="p-4 text-xs uppercase tracking-widest text-pe-text-muted font-medium">Product</th>
                 <th className="p-4 text-xs uppercase tracking-widest text-pe-text-muted font-medium">Category</th>
-                <th className="p-4 text-xs uppercase tracking-widest text-pe-text-muted font-medium">Price</th>
                 <th className="p-4 text-xs uppercase tracking-widest text-pe-text-muted font-medium text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {products.map(product => (
-                <tr key={product.id} className="border-b border-pe-divider hover:bg-pe-dark/30 transition-colors">
+                <tr key={product.id} className="border-b border-pe-divider hover:bg-pe-surface/30 transition-colors">
                   <td className="p-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-lg bg-pe-dark overflow-hidden flex-shrink-0">
+                      <div className="w-12 h-12 rounded-lg bg-pe-surface overflow-hidden flex-shrink-0">
                         {product.images[0] ? (
-                          <img src={product.images[0]} alt={product.name} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+                          <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                         ) : (
                           <ImageIcon className="w-6 h-6 m-3 text-pe-text-muted" />
                         )}
@@ -260,7 +309,6 @@ export default function Admin() {
                     </div>
                   </td>
                   <td className="p-4 text-sm text-pe-text-muted">{product.category}</td>
-                  <td className="p-4 text-sm font-serif text-pe-gold">₹{product.price.toLocaleString('en-IN')}</td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <button onClick={() => handleEdit(product)} className="p-2 text-pe-text-muted hover:text-pe-gold transition-colors">
@@ -295,7 +343,7 @@ export default function Admin() {
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
             >
-              <div className="bg-pe-dark border border-pe-divider rounded-2xl p-6 max-w-sm w-full shadow-2xl pointer-events-auto">
+              <div className="bg-pe-surface border border-pe-divider rounded-2xl p-6 max-w-sm w-full shadow-2xl pointer-events-auto">
                 <h3 className="font-serif text-2xl text-pe-text mb-2">Delete Product</h3>
                 <p className="text-pe-text-muted text-sm mb-6">Are you sure you want to delete this product? This action cannot be undone.</p>
                 <div className="flex gap-3">
@@ -355,7 +403,7 @@ export default function Admin() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 right-0 w-full md:w-[500px] bg-pe-dark shadow-2xl z-50 flex flex-col border-l border-pe-divider"
+              className="fixed inset-y-0 right-0 w-full md:w-[500px] bg-pe-surface shadow-2xl z-50 flex flex-col border-l border-pe-divider"
             >
               <div className="flex items-center justify-between p-6 border-b border-pe-divider">
                 <h2 className="font-serif text-2xl text-pe-text">{currentProduct.id ? 'Edit Product' : 'New Product'}</h2>
@@ -377,7 +425,7 @@ export default function Admin() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4">
                     <div>
                       <label className="block text-xs uppercase tracking-widest text-pe-gold mb-2">Category</label>
                       <select
@@ -388,17 +436,19 @@ export default function Admin() {
                         {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                       </select>
                     </div>
-                    <div>
-                      <label className="block text-xs uppercase tracking-widest text-pe-gold mb-2">Price (₹)</label>
-                      <input
-                        type="number"
-                        required
-                        min="0"
-                        value={currentProduct.price || 0}
-                        onChange={e => setCurrentProduct({ ...currentProduct, price: parseInt(e.target.value) || 0 })}
-                        className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-sm text-pe-text"
-                      />
-                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 py-2">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentProduct({ ...currentProduct, featured: !currentProduct.featured })}
+                      className={`w-12 h-6 rounded-full transition-colors relative ${currentProduct.featured ? 'bg-pe-gold' : 'bg-pe-divider'}`}
+                    >
+                      <div className={`w-4 h-4 rounded-full bg-pe-dark absolute top-1 transition-transform ${currentProduct.featured ? 'translate-x-7' : 'translate-x-1'}`} />
+                    </button>
+                    <label className="text-sm font-medium text-pe-text cursor-pointer" onClick={() => setCurrentProduct({ ...currentProduct, featured: !currentProduct.featured })}>
+                      Set as Featured Product
+                    </label>
                   </div>
 
                   <div>
@@ -476,12 +526,12 @@ export default function Admin() {
                   </div>
 
                   <div>
-                    <label className="block text-xs uppercase tracking-widest text-pe-gold mb-2">Product Images (Max 6)</label>
+                    <label className="block text-xs uppercase tracking-widest text-pe-gold mb-2">Product Images (Min 3, Max 6)</label>
                     <div className="grid grid-cols-3 gap-4 mb-2">
                       {(currentProduct.images || []).map((img, idx) => (
                         <div key={idx} className="relative aspect-[3/4] rounded-xl overflow-hidden bg-pe-surface group border border-pe-divider">
-                          <img src={img} alt="" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
-                          <div className="absolute inset-0 bg-pe-dark/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
+                          <img src={img} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                          <div className="absolute inset-0 bg-pe-surface/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
                             <div className="flex justify-between">
                               <button type="button" onClick={() => moveImage(idx, 'left')} disabled={idx === 0} className="p-1 text-pe-text disabled:opacity-30 hover:bg-white/20 rounded-full transition-colors"><ChevronLeft size={16}/></button>
                               <button type="button" onClick={() => moveImage(idx, 'right')} disabled={idx === (currentProduct.images?.length || 0) - 1} className="p-1 text-pe-text disabled:opacity-30 hover:bg-white/20 rounded-full transition-colors"><ChevronRight size={16}/></button>
@@ -515,10 +565,43 @@ export default function Admin() {
                   </div>
 
                   <div>
+                    <label className="block text-xs uppercase tracking-widest text-pe-gold mb-2">Product Video (Optional)</label>
+                    {currentProduct.video ? (
+                      <div className="relative aspect-video rounded-xl overflow-hidden bg-pe-surface border border-pe-divider group">
+                        <video src={currentProduct.video} className="w-full h-full object-cover" controls playsInline />
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button type="button" onClick={removeVideo} className="p-2 text-white bg-red-500/80 rounded-full hover:bg-red-500 transition-colors">
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <label className="aspect-video rounded-xl border-2 border-dashed border-pe-divider flex flex-col items-center justify-center text-pe-text-muted hover:border-pe-gold hover:text-pe-gold transition-colors cursor-pointer bg-pe-surface/50">
+                        {isUploadingVideo ? (
+                          <Loader2 className="animate-spin mb-2" size={24} />
+                        ) : (
+                          <>
+                            <Upload size={24} className="mb-2" />
+                            <span className="text-xs font-medium uppercase tracking-wider text-center px-2">Upload Video</span>
+                            <span className="text-[10px] text-center px-2 mt-1 opacity-70">MP4, max 50MB. 5-15s recommended.</span>
+                          </>
+                        )}
+                        <input 
+                          type="file" 
+                          accept="video/mp4" 
+                          className="hidden" 
+                          onChange={handleVideoUpload} 
+                          disabled={isUploadingVideo} 
+                        />
+                      </label>
+                    )}
+                  </div>
+
+                  <div>
                     <label className="block text-xs uppercase tracking-widest text-pe-gold mb-2">Shop the Look (Suggested Accessories)</label>
                     <div className="max-h-48 overflow-y-auto border border-pe-divider rounded-xl p-2 bg-pe-surface space-y-1 no-scrollbar">
                       {products.filter(p => p.id !== currentProduct.id).map(p => (
-                        <label key={p.id} className="flex items-center gap-3 p-2 hover:bg-pe-dark rounded-lg cursor-pointer transition-colors">
+                        <label key={p.id} className="flex items-center gap-3 p-2 hover:bg-pe-surface rounded-lg cursor-pointer transition-colors">
                           <input
                             type="checkbox"
                             checked={currentProduct.suggestedAccessories?.includes(p.id) || false}
@@ -530,10 +613,10 @@ export default function Admin() {
                                 setCurrentProduct({ ...currentProduct, suggestedAccessories: current.filter(id => id !== p.id) });
                               }
                             }}
-                            className="rounded border-pe-divider bg-pe-dark text-pe-gold focus:ring-pe-gold focus:ring-offset-pe-dark w-4 h-4"
+                            className="rounded border-pe-divider bg-pe-surface text-pe-gold focus:ring-pe-gold focus:ring-offset-pe-surface w-4 h-4"
                           />
                           <div className="flex items-center gap-3">
-                            <img src={p.images[0]} alt="" className="w-10 h-10 rounded-md object-contain bg-pe-dark" referrerPolicy="no-referrer" />
+                            <img src={p.images[0]} alt="" className="w-10 h-10 rounded-md object-cover bg-pe-surface" referrerPolicy="no-referrer" />
                             <div>
                               <span className="text-sm font-medium block text-pe-text">{p.name}</span>
                               <span className="text-xs text-pe-text-muted">{p.category}</span>
@@ -554,7 +637,7 @@ export default function Admin() {
                   <button
                     type="button"
                     onClick={() => setIsEditing(false)}
-                    className="flex-1 py-3 bg-pe-dark border border-pe-divider text-pe-text rounded-xl text-sm font-medium hover:border-pe-gold transition-colors"
+                    className="flex-1 py-3 bg-pe-surface border border-pe-divider text-pe-text rounded-xl text-sm font-medium hover:border-pe-gold transition-colors"
                   >
                     Cancel
                   </button>
@@ -576,9 +659,9 @@ export default function Admin() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {eventCategories.map(event => (
             <div key={event.name} className="bg-pe-surface border border-pe-divider rounded-2xl overflow-hidden shadow-sm">
-              <div className="aspect-[4/3] bg-pe-dark relative group">
+              <div className="aspect-[4/3] bg-pe-surface relative group">
                 {event.image ? (
-                  <img src={event.image} alt={event.name} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+                  <img src={event.image} alt={event.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-pe-text-muted">
                     <ImageIcon size={48} className="opacity-20" />
@@ -604,9 +687,137 @@ export default function Admin() {
             </div>
           ))}
         </div>
-      ) : (
+      ) : activeTab === 'gallery' ? (
         <GalleryModeration />
+      ) : (
+        <HeroVideoManager />
       )}
+    </div>
+  );
+}
+
+function HeroVideoManager() {
+  const heroVideo = useStore(state => state.heroVideo);
+  const updateHeroVideo = useStore(state => state.updateHeroVideo);
+  const [isUploading, setIsUploading] = useState(false);
+  const [videoUrl, setVideoUrl] = useState(heroVideo);
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'video/mp4') {
+      alert('Only MP4 video format is supported.');
+      return;
+    }
+
+    if (file.size > 50 * 1024 * 1024) { // 50MB limit
+      alert('Video must be less than 50MB.');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const uploadedUrl = await uploadVideo(file);
+      setVideoUrl(uploadedUrl);
+      updateHeroVideo(uploadedUrl);
+    } catch (error) {
+      console.error('Video upload error:', error);
+      alert('Failed to upload video. Please try again.');
+    } finally {
+      setIsUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleUrlSave = () => {
+    if (videoUrl) {
+      updateHeroVideo(videoUrl);
+      alert('Hero video updated successfully!');
+    }
+  };
+
+  return (
+    <div className="bg-pe-surface rounded-2xl shadow-sm border border-pe-divider overflow-hidden p-6 max-w-2xl mx-auto">
+      <h2 className="font-serif text-2xl text-pe-text mb-6">Hero Video Settings</h2>
+      
+      <div className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-pe-text-muted uppercase tracking-widest mb-2">
+            Current Video Preview
+          </label>
+          <div className="aspect-video bg-black rounded-xl overflow-hidden relative">
+            {heroVideo ? (
+              <video 
+                src={heroVideo} 
+                className="w-full h-full object-cover opacity-80"
+                autoPlay 
+                muted 
+                loop 
+                playsInline
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-pe-text-muted">
+                No video set
+              </div>
+            )}
+            {isUploading && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm">
+                <Loader2 className="animate-spin text-pe-gold" size={32} />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-pe-text-muted uppercase tracking-widest mb-2">
+            Upload New Video (MP4, Max 50MB)
+          </label>
+          <label className="flex items-center justify-center w-full h-32 px-4 transition bg-pe-surface border-2 border-pe-divider border-dashed rounded-xl appearance-none cursor-pointer hover:border-pe-gold focus:outline-none">
+            <span className="flex items-center space-x-2">
+              <Upload className="w-6 h-6 text-pe-text-muted" />
+              <span className="font-medium text-pe-text-muted">
+                {isUploading ? 'Uploading...' : 'Drop video to upload, or click to select'}
+              </span>
+            </span>
+            <input 
+              type="file" 
+              name="file_upload" 
+              className="hidden" 
+              accept="video/mp4"
+              onChange={handleVideoUpload}
+              disabled={isUploading}
+            />
+          </label>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="flex-1 h-px bg-pe-divider"></div>
+          <span className="text-sm text-pe-text-muted uppercase tracking-widest">OR</span>
+          <div className="flex-1 h-px bg-pe-divider"></div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-pe-text-muted uppercase tracking-widest mb-2">
+            Video URL
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="url"
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              placeholder="https://example.com/video.mp4"
+              className="flex-1 px-4 py-2 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-pe-text"
+            />
+            <button
+              onClick={handleUrlSave}
+              className="px-6 py-2 bg-pe-gold text-pe-dark rounded-xl font-medium uppercase tracking-widest hover:bg-pe-gold-light transition-colors"
+            >
+              Save URL
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -688,7 +899,7 @@ function GalleryModeration() {
       {deleteConfirmId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setDeleteConfirmId(null)} />
-          <div className="relative bg-pe-dark border border-pe-divider rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+          <div className="relative bg-pe-surface border border-pe-divider rounded-2xl p-6 max-w-sm w-full shadow-2xl">
             <h3 className="text-xl font-serif text-pe-text mb-4">Delete Post?</h3>
             <p className="text-pe-text-muted mb-6">Are you sure you want to delete this gallery post? This action cannot be undone.</p>
             <div className="flex gap-4">
@@ -717,7 +928,7 @@ function GalleryModeration() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {posts.map(post => (
             <div key={post.id} className="bg-pe-surface border border-pe-divider rounded-2xl overflow-hidden shadow-sm flex flex-col">
-              <div className="aspect-[4/5] bg-pe-dark relative">
+              <div className="aspect-[4/5] bg-pe-surface relative">
                 <img src={post.images[0]} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 <div className="absolute top-2 right-2 flex gap-2">
                   <span className={`px-2 py-1 rounded text-xs font-medium uppercase tracking-wider ${post.approved ? 'bg-green-500/20 text-green-500' : 'bg-yellow-500/20 text-yellow-500'}`}>
@@ -736,7 +947,7 @@ function GalleryModeration() {
                     onClick={() => handleApprove(post.id, !post.approved)}
                     className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                       post.approved 
-                        ? 'bg-pe-dark text-pe-text border border-pe-divider hover:border-pe-gold' 
+                        ? 'bg-pe-surface text-pe-text border border-pe-divider hover:border-pe-gold' 
                         : 'bg-pe-gold text-pe-dark hover:bg-pe-gold-light'
                     }`}
                   >

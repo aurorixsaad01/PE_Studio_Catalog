@@ -17,9 +17,9 @@ export default function AdminLogin() {
   useEffect(() => {
     if (!loading && userProfile) {
       if (userProfile.role === 'admin') {
-        navigate('/pe-control/dashboard');
+        navigate('/manage-products');
       } else {
-        navigate('/');
+        navigate('/discover');
       }
     }
   }, [userProfile, loading, navigate]);
@@ -41,21 +41,21 @@ export default function AdminLogin() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-pe-dark">
+      <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="animate-spin text-pe-gold" size={32} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-pe-dark px-4">
-      <div className="max-w-md w-full bg-pe-surface border border-pe-divider rounded-2xl p-8 shadow-2xl">
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="max-w-md w-full bg-pe-surface ipad-card p-8 shadow-2xl">
         <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-full bg-pe-dark flex items-center justify-center border border-pe-gold/20 mx-auto mb-4">
+          <div className="w-12 h-12 rounded-full bg-pe-surface flex items-center justify-center border border-pe-gold/20 mx-auto mb-4">
             <span className="text-pe-gold font-serif font-bold text-xl">PE</span>
           </div>
-          <h1 className="font-serif text-2xl text-pe-text">Admin Control Panel</h1>
-          <p className="text-pe-text-muted mt-2 text-sm">Sign in to manage the application.</p>
+          <h1 className="ipad-page-title text-pe-text">Admin Control Panel</h1>
+          <p className="text-[15px] text-pe-text-muted mt-2">Sign in to manage the application.</p>
         </div>
 
         {error && (
@@ -66,25 +66,25 @@ export default function AdminLogin() {
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label className="block text-xs uppercase tracking-widest text-pe-gold mb-2">Email Address</label>
+            <label className="block text-[13px] font-medium text-pe-gold mb-2">Email Address</label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-pe-dark border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-sm text-pe-text"
+              className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-[15px] text-pe-text"
               placeholder="admin@puneethnic.com"
             />
           </div>
 
           <div>
-            <label className="block text-xs uppercase tracking-widest text-pe-gold mb-2">Password</label>
+            <label className="block text-[13px] font-medium text-pe-gold mb-2">Password</label>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-pe-dark border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-sm text-pe-text"
+              className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-[15px] text-pe-text"
               placeholder="••••••••"
             />
           </div>
@@ -92,7 +92,7 @@ export default function AdminLogin() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3 bg-pe-gold text-pe-dark rounded-xl font-medium hover:bg-pe-gold-light transition-colors flex items-center justify-center disabled:opacity-50"
+            className="w-full ipad-button bg-pe-gold text-pe-dark text-[15px] font-medium flex items-center justify-center disabled:opacity-50"
           >
             {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Sign In'}
           </button>

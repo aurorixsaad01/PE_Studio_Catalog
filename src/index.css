@@ -1,29 +1,143 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
   
-  --color-pe-gold: #C6A45B;
-  --color-pe-gold-light: #D6B36A;
-  --color-pe-dark: #2A1B12;
-  --color-pe-surface: #3E271D;
+  --color-pe-gold: #d4af37;
+  --color-pe-gold-light: #e6c55a;
+  --color-pe-dark: #1b0e06;
+  --color-pe-surface: rgba(255, 255, 255, 0.04);
   --color-pe-text: #FDFBF7;
-  --color-pe-text-muted: #D4C4B7;
-  --color-pe-divider: #5C3A29;
+  --color-pe-text-muted: #A09A95;
+  --color-pe-divider: rgba(255, 255, 255, 0.08);
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-pe-dark);
+  background: 
+    radial-gradient(circle at 30% 20%, rgba(212,175,55,0.12), transparent 40%),
+    radial-gradient(circle at 70% 80%, rgba(212,175,55,0.08), transparent 45%),
+    linear-gradient(180deg, #2e1609 0%, #1b0e06 100%);
+  background-size: 200% 200%;
+  animation: luxuryGlow 30s ease-in-out infinite;
   color: var(--color-pe-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+}
+
+@keyframes luxuryGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.bg-pe-surface {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+.ipad-nav {
+  background: rgba(20, 10, 5, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ipad-card {
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.35);
+  transition: all 220ms ease-out;
+}
+
+.ipad-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0px 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.ipad-card-img {
+  transition: transform 220ms ease-out;
+}
+
+.ipad-card:hover .ipad-card-img {
+  transform: scale(1.04);
+}
+
+.ipad-button {
+  border-radius: 9999px;
+  height: 44px;
+  padding-left: 24px;
+  padding-right: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 220ms ease-out;
+}
+
+.ipad-button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+.ipad-page-title {
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+@media (min-width: 768px) {
+  .ipad-page-title {
+    font-size: 44px;
+  }
+}
+
+.ipad-section-title {
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.ipad-card-title {
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.ipad-body-text {
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.ipad-small-label {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
 h1, h2, h3, h4, h5, h6, .font-serif {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans); /* Overriding serif to sans for iPadOS style */
+  letter-spacing: -0.01em;
 }
 
 /* Hide scrollbar for clean look */
