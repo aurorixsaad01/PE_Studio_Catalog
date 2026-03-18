@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import { collection, query, where, orderBy, onSnapshot, addDoc, serverTimestamp, doc, setDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { GalleryPost } from '../types';
-import { processAndUploadImage } from '../services/uploadService';
+import { uploadImageToCloudinary } from '../services/uploadService';
 import { Upload, X, Loader2, Image as ImageIcon, CheckCircle2, ChevronLeft, ChevronRight, Trash2, ChevronDown } from 'lucide-react';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import ProductImage from '../components/ProductImage';
 
 const CATEGORIES = ['All', 'Sherwani', 'Jodhpuri Suit', 'Indo-Western', 'Tuxedo', 'Kurta', 'Sangeet Ceremony'];
 
@@ -102,11 +103,10 @@ export default function GroomsGallery() {
                 onClick={() => setSelectedPost(post)}
               >
                 <div className="relative overflow-hidden rounded-t-[18px]">
-                  <img 
+                  <ProductImage 
                     src={post.images[0]} 
                     alt={`${post.groomName}'s wedding`}
                     className="w-full object-cover ipad-card-img"
-                    referrerPolicy="no-referrer"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
@@ -248,7 +248,7 @@ function UploadModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
 
     setIsUploading(true);
     try {
-      const uploadedUrls = await Promise.all(images.map(processAndUploadImage));
+      const uploadedUrls = await Promise.all(images.map(uploadImageToCloudinary));
       
       const newPostRef = doc(collection(db, 'gallery_posts'));
       const postData: GalleryPost = {
@@ -509,11 +509,10 @@ function PostDetailModal({ post, onClose }: { post: GalleryPost; onClose: () => 
 
         {/* Image Section */}
         <div className="w-full md:w-3/5 bg-black relative flex items-center justify-center min-h-[40vh] md:min-h-0">
-          <img 
+          <ProductImage 
             src={post.images[currentImageIndex]} 
             alt="Wedding moment" 
             className="max-w-full max-h-full object-contain"
-            referrerPolicy="no-referrer"
           />
           
           {post.images.length > 1 && (

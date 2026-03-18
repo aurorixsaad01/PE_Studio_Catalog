@@ -8,6 +8,7 @@ import { cn } from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
 import { doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '../firebase';
+import ProductImage from '../components/ProductImage';
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -253,16 +254,15 @@ export default function ProductDetail() {
                 )}
                 {(!product.video && (!product.images || product.images.length === 0)) && (
                   <div className="flex-[0_0_100%] min-w-0 h-full relative flex items-center justify-center bg-pe-surface border border-pe-divider">
-                    <span className="text-pe-text-muted">No Image Available</span>
+                    <ProductImage className="w-full h-full object-cover" />
                   </div>
                 )}
                 {product.images?.map((img, idx) => (
                   <div className="flex-[0_0_100%] min-w-0 h-full relative" key={idx}>
-                    <img 
+                    <ProductImage 
                       src={img} 
                       alt={`${product.name} ${idx + 1}`} 
                       className="w-full h-full object-cover" 
-                      referrerPolicy="no-referrer"
                     />
                   </div>
                 ))}
@@ -314,7 +314,7 @@ export default function ProductDetail() {
                   activeImage === (product.video ? idx + 1 : idx) ? "border-pe-gold" : "border-transparent hover:border-pe-gold/50"
                 )}
               >
-                <img src={img} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                <ProductImage src={img} alt="" className="w-full h-full object-cover" />
               </button>
             ))}
           </div>
@@ -404,11 +404,10 @@ export default function ProductDetail() {
                     <Link key={accessory.id} to={`/product/${accessory.id}`} className="flex-shrink-0 w-36 group">
                       <div className="aspect-[3/4] rounded-xl overflow-hidden bg-pe-surface mb-3 border border-transparent group-hover:border-pe-gold transition-colors">
                         {accessory.images && accessory.images.length > 0 ? (
-                          <img 
+                          <ProductImage 
                             src={accessory.images[0]} 
                             alt={accessory.name} 
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                            referrerPolicy="no-referrer"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-pe-text-muted text-xs">
@@ -530,7 +529,7 @@ export default function ProductDetail() {
                   <div className="bg-pe-dark/50 p-4 rounded-xl flex gap-4 items-center mb-2">
                     <div className="w-16 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-pe-surface border border-pe-divider">
                       {product.images && product.images.length > 0 ? (
-                        <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        <ProductImage src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-pe-text-muted text-[10px]">
                           No Image

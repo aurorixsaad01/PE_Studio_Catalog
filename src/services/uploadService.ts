@@ -1,18 +1,27 @@
 import imageCompression from 'browser-image-compression';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '../firebase';
 
-export async function uploadVideo(file: File): Promise<string> {
-  const uniqueId = Date.now().toString() + '-' + Math.random().toString(36).substring(2, 9);
-  const storageRef = ref(storage, `products/videos/${uniqueId}_${file.name}`);
-  
-  await uploadBytes(storageRef, file);
-  const downloadUrl = await getDownloadURL(storageRef);
-  
-  return downloadUrl;
+const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dqxlc84z6';
+const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'pe_studio_upload';
+
+export async function uploadVideoToCloudinary(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', UPLOAD_PRESET);
+
+  const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error('Video upload failed');
+  }
+
+  const data = await response.json();
+  return data.secure_url;
 }
 
-export async function processAndUploadImage(file: File, folder: string = 'uploads'): Promise<string> {
+export async function uploadImageToCloudinary(file: File): Promise<string> {
   // 1. Compress and resize image
   const options = {
     maxSizeMB: 2,
@@ -22,12 +31,21 @@ export async function processAndUploadImage(file: File, folder: string = 'upload
   
   const compressedFile = await imageCompression(file, options);
 
-  // 2. Upload to Firebase Storage
-  const uniqueId = Date.now().toString() + '-' + Math.random().toString(36).substring(2, 9);
-  const storageRef = ref(storage, `${folder}/${uniqueId}_${file.name}`);
-  
-  await uploadBytes(storageRef, compressedFile);
-  const downloadUrl = await getDownloadURL(storageRef);
-  
-  return downloadUrl;
+  // 2. Upload to Cloudinary
+  const formData = new FormData();
+  formData.append('file', compressedFile);
+  formData.append('upload_preset', UPLOAD_PRESET);
+
+  const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error('Image upload failed');
+  }
+
+  const data = await response.json();
+  // Append transformations for automatic optimization
+  return `${data.secure_url}?f_auto,q_auto`;
 }

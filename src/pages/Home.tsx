@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import { Filter, X, ChevronDown, ArrowRight } from 'lucide-react';
 import { useStore } from '../store';
 import { Category, EventType } from '../types';
+import ProductImage from '../components/ProductImage';
 
 const CATEGORIES: Category[] = ['Sherwani', 'Jodhpuri Suit', 'Indo-Western', 'Tuxedo', 'Kurta', 'Accessories'];
 const EVENTS: EventType[] = ['Wedding Ceremony', 'Reception', 'Engagement', 'Haldi', 'Festival Wear'];
@@ -233,11 +234,10 @@ export default function Home() {
             <div className="flex flex-col md:flex-row bg-pe-surface rounded-[24px] overflow-hidden border border-pe-divider shadow-lg group">
               <div className="w-full md:w-1/2 aspect-[4/5] md:aspect-auto md:h-[600px] overflow-hidden bg-pe-surface border-r border-pe-divider">
                 {featuredProduct.images && featuredProduct.images.length > 0 ? (
-                  <img 
+                  <ProductImage 
                     src={featuredProduct.images[0]} 
                     alt={featuredProduct.name}
                     className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                    referrerPolicy="no-referrer"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-pe-text-muted">
@@ -279,12 +279,10 @@ export default function Home() {
             <Link to={`/product/${product.id}`} className="block group relative overflow-hidden bg-pe-surface rounded-[16px] shadow-sm hover:shadow-xl transition-shadow duration-500">
               <div className="aspect-[3/4] w-full overflow-hidden bg-pe-surface">
                 {product.images && product.images.length > 0 ? (
-                  <img 
+                  <ProductImage 
                     src={product.images[0]} 
                     alt={product.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-pe-text-muted">
@@ -341,7 +339,7 @@ export default function Home() {
             ].map((img, i) => (
               <div key={i} className={`relative rounded-xl overflow-hidden aspect-[3/4] bg-pe-surface border border-pe-divider ${i % 2 === 0 ? 'md:translate-y-4' : 'md:-translate-y-4'}`}>
                 {img ? (
-                  <img src={img} alt="Real Groom" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" referrerPolicy="no-referrer" />
+                  <ProductImage src={img} alt="Real Groom" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-pe-text-muted text-sm">
                     Coming Soon

@@ -20,7 +20,7 @@ export default function Layout() {
       <header className="sticky top-0 z-40 ipad-nav transition-all duration-300">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3 group cursor-pointer">
-            <img src="https://res.cloudinary.com/dqxlc84z6/image/upload/v1773769868/Gemini_Generated_Image_ej1vzsej1vzsej1v_wyoqmb.png" alt="Pune Ethnic Logo" className="h-8 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity rounded-md" />
+            <img src="https://res.cloudinary.com/dqxlc84z6/image/upload/v1773854426/Gemini_Generated_Image_hfx07ahfx07ahfx0_bnzxnh.png" alt="Pune Ethnic Logo" className="h-8 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity rounded-md" />
             <span className="font-serif font-semibold text-lg tracking-[0.05em] uppercase text-pe-text group-hover:text-pe-gold transition-colors">Pune Ethnic</span>
           </div>
           

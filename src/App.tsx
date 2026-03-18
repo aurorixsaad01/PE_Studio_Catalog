@@ -6,6 +6,10 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { db } from './firebase';
+import { useStore } from './store';
+import { Product } from './types';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
@@ -49,6 +53,22 @@ const SplashScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
+  const setProducts = useStore(state => state.setProducts);
+
+  useEffect(() => {
+    const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const productsData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Product[];
+      setProducts(productsData);
+    }, (error) => {
+      console.error("Error fetching products:", error);
+    });
+
+    return () => unsubscribe();
+  }, [setProducts]);
 
   // Fallback timer in case video fails to load or play
   useEffect(() => {

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useStore } from '../store';
+import ProductImage from '../components/ProductImage';
 
 export default function Categories() {
   const products = useStore(state => state.products);
@@ -30,11 +31,10 @@ export default function Categories() {
                 className="block group relative h-48 md:h-64 bg-pe-surface ipad-card"
               >
                 {event.image ? (
-                  <img 
+                  <ProductImage 
                     src={event.image} 
                     alt={event.name} 
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    referrerPolicy="no-referrer"
                   />
                 ) : (
                   <div className="w-full h-full bg-pe-surface transition-transform duration-700 ease-in-out group-hover:scale-105" />

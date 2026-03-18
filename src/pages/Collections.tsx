@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { doc, updateDoc, arrayRemove, getDocs, collection, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Product } from '../types';
+import ProductImage from '../components/ProductImage';
 
 export default function Collections() {
   const { userProfile, loading } = useAuth();
@@ -98,11 +99,10 @@ export default function Collections() {
           {savedProducts.map(product => (
             <div key={product.id} className="group relative bg-pe-surface aspect-[3/4] rounded-[16px] overflow-hidden">
               {product.images && product.images.length > 0 ? (
-                <img 
+                <ProductImage 
                   src={product.images[0]} 
                   alt={product.name}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  referrerPolicy="no-referrer"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-pe-text-muted text-sm border border-pe-divider rounded-[16px]">

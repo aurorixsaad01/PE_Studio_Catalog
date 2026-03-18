@@ -13,6 +13,28 @@
       },
       "required": ["uid", "email", "role"]
     },
+    "Product": {
+      "title": "Product",
+      "description": "A product in the store.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique ID of the product" },
+        "name": { "type": "string", "description": "Name of the product" },
+        "category": { "type": "string", "description": "Category of the product" },
+        "events": { "type": "array", "items": { "type": "string" }, "description": "Events the product is suitable for" },
+        "price": { "type": "number", "description": "Price of the product" },
+        "sizes": { "type": "array", "items": { "type": "string" }, "description": "Available sizes" },
+        "fabric": { "type": "string", "description": "Fabric of the product" },
+        "colors": { "type": "array", "items": { "type": "string" }, "description": "Available colors" },
+        "description": { "type": "string", "description": "Description of the product" },
+        "images": { "type": "array", "items": { "type": "string" }, "description": "Array of image URLs" },
+        "video": { "type": "string", "description": "Optional video URL" },
+        "suggestedAccessories": { "type": "array", "items": { "type": "string" }, "description": "IDs of suggested accessories" },
+        "featured": { "type": "boolean", "description": "Whether the product is featured" },
+        "createdAt": { "type": "number", "description": "Timestamp of creation" }
+      },
+      "required": ["id", "name", "category", "price", "description", "fabric", "sizes", "colors", "images", "createdAt"]
+    },
     "GalleryPost": {
       "title": "Gallery Post",
       "description": "A post in the Real Grooms Gallery.",
@@ -35,6 +57,10 @@
     "users/{userId}": {
       "schema": "User",
       "description": "Stores user profiles and roles."
+    },
+    "products/{productId}": {
+      "schema": "Product",
+      "description": "Stores all products."
     },
     "gallery_posts/{postId}": {
       "schema": "GalleryPost",

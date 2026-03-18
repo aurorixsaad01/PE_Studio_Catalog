@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Loader2, LogOut, Heart, Image as ImageIcon, Settings, User } from 'lucide-react';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { Product, GalleryPost } from '../types';
+import ProductImage from '../components/ProductImage';
 
 export default function Profile() {
   const { userProfile, loading } = useAuth();
@@ -196,11 +197,10 @@ export default function Profile() {
                     <Link key={product.id} to={`/product/${product.id}`} className="group block relative overflow-hidden bg-pe-surface rounded-[16px]">
                       <div className="aspect-[3/4] w-full overflow-hidden">
                         {product.images?.[0] ? (
-                          <img
+                          <ProductImage
                             src={product.images[0]}
                             alt={product.name}
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            referrerPolicy="no-referrer"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-pe-text-muted">
@@ -251,11 +251,10 @@ export default function Profile() {
                     <div key={post.id} className="group block relative">
                       <div className="aspect-[3/4] bg-pe-surface mb-4 relative ipad-card">
                         {post.images?.[0] ? (
-                          <img
+                          <ProductImage
                             src={post.images[0]}
                             alt={post.groomName}
                             className="w-full h-full object-cover ipad-card-img"
-                            referrerPolicy="no-referrer"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-pe-text-muted">
