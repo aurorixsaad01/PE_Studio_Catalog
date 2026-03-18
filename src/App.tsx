@@ -25,6 +25,8 @@ import Profile from './pages/Profile';
 import AdminLogin from './pages/AdminLogin';
 
 const SplashScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
+  const [videoLoaded, setVideoLoaded] = useState(false);
+
   return (
     <motion.div 
       className="fixed inset-0 bg-pe-dark flex flex-col items-center justify-center z-50"
@@ -37,6 +39,11 @@ const SplashScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
         playsInline 
         className="w-full h-full object-cover"
         onEnded={onComplete}
+        onLoadedData={() => setVideoLoaded(true)}
+        onError={() => {
+          console.log("Video failed to load, skipping splash");
+          setTimeout(onComplete, 1000);
+        }}
       >
         <source src="https://res.cloudinary.com/dqxlc84z6/video/upload/v1773768444/Minimal_Logo_Intro_Video_Generation_vst2yg.mov" />
       </video>
@@ -56,8 +63,10 @@ export default function App() {
   const setProducts = useStore(state => state.setProducts);
 
   useEffect(() => {
+    console.log("App mounted, attempting to load products from Firestore");
     const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
+      console.log("Products loaded:", snapshot.docs.length);
       const productsData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -73,6 +82,7 @@ export default function App() {
   // Fallback timer in case video fails to load or play
   useEffect(() => {
     const timer = setTimeout(() => {
+      console.log("Splash screen timeout reached, showing main content");
       setShowSplash(false);
     }, 8000); // Max 8 seconds
     return () => clearTimeout(timer);
