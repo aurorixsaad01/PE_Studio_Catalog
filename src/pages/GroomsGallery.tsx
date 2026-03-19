@@ -48,29 +48,29 @@ export default function GroomsGallery() {
   return (
     <div className="min-h-screen pt-24 pb-16 px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-8 md:mb-12">
           <div>
-            <h1 className="ipad-page-title text-pe-text mb-4">Real Grooms Gallery</h1>
-            <p className="text-[15px] text-pe-text-muted max-w-2xl">
+            <h1 className="text-2xl md:text-3xl font-bold text-pe-text tracking-tight mb-2 md:mb-4">Real Grooms Gallery</h1>
+            <p className="text-sm md:text-[15px] text-pe-text-muted max-w-2xl">
               Discover how real grooms styled their Pune Ethnic outfits. Get inspired by their wedding moments and share your own.
             </p>
           </div>
           <button
             onClick={() => setIsUploadModalOpen(true)}
-            className="ipad-button bg-pe-gold text-pe-dark text-[15px] font-medium whitespace-nowrap"
+            className="ios-btn ios-btn-primary flex items-center justify-center whitespace-nowrap"
           >
-            <Upload size={18} className="mr-2" />
+            <Upload size={16} className="mr-2" />
             Upload Your Moment
           </button>
         </div>
 
         {/* Filters */}
-        <div className="flex overflow-x-auto no-scrollbar gap-3 mb-10 pb-2">
+        <div className="flex overflow-x-auto no-scrollbar gap-2 md:gap-3 mb-8 md:mb-10 pb-2">
           {CATEGORIES.map(category => (
             <button
               key={category}
               onClick={() => setActiveFilter(category)}
-              className={`px-6 py-2.5 rounded-full text-[13px] font-medium uppercase tracking-widest whitespace-nowrap transition-colors border ${
+              className={`flex-shrink-0 px-4 py-2 md:px-6 md:py-2.5 rounded-full text-[11px] md:text-xs font-medium uppercase tracking-widest whitespace-nowrap transition-colors border ${
                 activeFilter === category
                   ? 'bg-pe-gold text-pe-dark border-pe-gold'
                   : 'bg-transparent text-pe-text border-pe-divider hover:border-pe-gold/50'
@@ -87,33 +87,33 @@ export default function GroomsGallery() {
             <Loader2 className="animate-spin text-pe-gold" size={40} />
           </div>
         ) : filteredPosts.length === 0 ? (
-          <div className="text-center py-20 ipad-card bg-pe-surface/30">
+          <div className="text-center py-20 ios-card bg-pe-surface/30">
             <ImageIcon className="mx-auto text-pe-text-muted mb-4" size={48} />
-            <h3 className="ipad-section-title text-pe-text mb-2">No posts found</h3>
+            <h3 className="text-lg font-semibold text-pe-text mb-2">No posts found</h3>
             <p className="text-[15px] text-pe-text-muted">Be the first to share your wedding moment in this category.</p>
           </div>
         ) : (
-          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
+          <div className="columns-2 lg:columns-3 xl:columns-4 gap-3 md:gap-6 space-y-3 md:space-y-6">
             {filteredPosts.map(post => (
               <motion.div
                 key={post.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="break-inside-avoid relative group cursor-pointer bg-pe-surface ipad-card"
+                className="break-inside-avoid relative group cursor-pointer ios-card p-0 overflow-hidden"
                 onClick={() => setSelectedPost(post)}
               >
-                <div className="relative overflow-hidden rounded-t-[18px]">
+                <div className="relative overflow-hidden">
                   <ProductImage 
                     src={post.images[0]} 
                     alt={`${post.groomName}'s wedding`}
-                    className="w-full object-cover ipad-card-img"
+                    className="w-full object-cover aspect-[3/4]"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
-                <div className="p-4">
-                  <h3 className="ipad-card-title text-pe-text mb-1">{post.groomName}</h3>
-                  <div className="flex items-center justify-between text-[11px] text-pe-text-muted uppercase tracking-wider">
-                    <span>{post.outfitCategory}</span>
+                <div className="p-3 md:p-4">
+                  <h3 className="text-sm md:text-base font-medium text-pe-text mb-1">{post.groomName}</h3>
+                  <div className="flex flex-col md:flex-row md:items-center justify-between text-[10px] md:text-[11px] text-pe-text-muted uppercase tracking-wider gap-1">
+                    <span className="truncate">{post.outfitCategory}</span>
                     <span>{new Date(post.weddingDate).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}</span>
                   </div>
                 </div>
@@ -288,10 +288,10 @@ function UploadModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative w-full max-w-2xl bg-pe-surface border border-pe-divider rounded-[18px] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+        className="relative w-full max-w-2xl ios-card p-0 overflow-hidden max-h-[90vh] flex flex-col"
       >
         <div className="flex items-center justify-between p-6 border-b border-pe-divider">
-          <h2 className="ipad-section-title text-pe-text">Share Your Moment</h2>
+          <h2 className="text-xl font-semibold text-pe-text">Share Your Moment</h2>
           <button onClick={onClose} className="p-2 text-pe-text-muted hover:text-pe-text transition-colors rounded-full hover:bg-pe-surface">
             <X size={20} />
           </button>
@@ -300,11 +300,11 @@ function UploadModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
         <div className="p-6 overflow-y-auto no-scrollbar flex-1">
           {step === 'auth' && (
             <div className="text-center py-12">
-              <h3 className="ipad-section-title text-pe-text mb-4">Sign in to upload</h3>
+              <h3 className="text-xl font-semibold text-pe-text mb-4">Sign in to upload</h3>
               <p className="text-[15px] text-pe-text-muted mb-8">Please sign in to your account to share your wedding photos with our community.</p>
               <button
                 onClick={handleLoginRedirect}
-                className="ipad-button bg-pe-gold text-pe-dark text-[15px] font-medium inline-flex items-center gap-3"
+                className="ios-btn ios-btn-primary inline-flex items-center gap-3"
               >
                 Go to Login
               </button>
@@ -438,11 +438,11 @@ function UploadModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
               <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <CheckCircle2 size={32} />
               </div>
-              <h3 className="ipad-section-title text-pe-text mb-4">Upload Successful!</h3>
+              <h3 className="text-xl font-bold text-pe-text mb-4">Upload Successful!</h3>
               <p className="text-[15px] text-pe-text-muted mb-8">Thank you for sharing your special moment. Your post has been submitted and is pending admin approval. It will appear in the gallery shortly.</p>
               <button
                 onClick={onClose}
-                className="ipad-button bg-pe-gold text-pe-dark text-[15px] font-medium"
+                className="ios-btn ios-btn-primary w-full"
               >
                 Close
               </button>
@@ -456,7 +456,7 @@ function UploadModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
               type="button"
               onClick={onClose}
               disabled={isUploading}
-              className="px-6 py-3 bg-pe-surface border border-pe-divider text-pe-text rounded-full text-[15px] font-medium hover:border-pe-gold transition-colors disabled:opacity-50"
+              className="ios-btn ios-btn-secondary disabled:opacity-50"
             >
               Cancel
             </button>
@@ -464,7 +464,7 @@ function UploadModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
               type="submit"
               form="upload-form"
               disabled={isUploading}
-              className="ipad-button bg-pe-gold text-pe-dark text-[15px] font-medium flex items-center gap-2 disabled:opacity-50"
+              className="ios-btn ios-btn-primary flex items-center gap-2 disabled:opacity-50"
             >
               {isUploading ? (
                 <>
@@ -551,7 +551,7 @@ function PostDetailModal({ post, onClose }: { post: GalleryPost; onClose: () => 
           
           <div className="p-6 md:p-8 overflow-y-auto flex-1">
             <div className="mb-6">
-              <h2 className="ipad-page-title text-pe-text mb-2">{post.groomName}</h2>
+              <h2 className="text-2xl font-bold text-pe-text mb-2">{post.groomName}</h2>
               <div className="flex items-center gap-4 text-[13px] text-pe-text-muted uppercase tracking-wider">
                 <span className="text-pe-gold">{post.outfitCategory}</span>
                 <span>•</span>
@@ -560,7 +560,7 @@ function PostDetailModal({ post, onClose }: { post: GalleryPost; onClose: () => 
             </div>
             
             <div className="prose prose-invert max-w-none">
-              <p className="ipad-body-text text-pe-text whitespace-pre-wrap">{post.caption}</p>
+              <p className="text-[15px] leading-relaxed text-pe-text whitespace-pre-wrap">{post.caption}</p>
             </div>
           </div>
         </div>

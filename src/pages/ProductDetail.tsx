@@ -218,7 +218,7 @@ export default function ProductDetail() {
   return (
     <div className="min-h-screen pb-24 md:pb-12">
       {/* Mobile Header */}
-      <header className="md:hidden fixed top-0 inset-x-0 z-50 ipad-nav px-4 h-14 flex items-center justify-between">
+      <header className="md:hidden fixed top-0 inset-x-0 z-50 ios-glass-heavy px-4 h-14 flex items-center justify-between">
         <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-pe-text">
           <ChevronLeft size={24} strokeWidth={1.5} />
         </button>
@@ -325,7 +325,7 @@ export default function ProductDetail() {
           <div className="flex justify-between items-start mb-2">
             <div>
               <p className="text-pe-gold text-xs uppercase tracking-[0.2em] font-medium mb-2">{product.category}</p>
-              <h1 className="ipad-page-title leading-tight text-pe-text">{product.name}</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-pe-text tracking-tight leading-tight">{product.name}</h1>
             </div>
             {/* Desktop Actions */}
             <div className="hidden md:flex items-center gap-4">
@@ -338,36 +338,36 @@ export default function ProductDetail() {
             </div>
           </div>
           
-          <div className="mb-8 mt-2">
-            <p className="text-[#d4af37] font-medium text-[16px] tracking-[0.02em]">Visit store for pricing</p>
-            <p className="text-white/70 text-[14px] mt-1">Custom fittings available</p>
+          <div className="mb-6 mt-2">
+            <p className="text-pe-gold font-medium text-sm tracking-[0.02em]">Visit store for pricing</p>
+            <p className="text-white/70 text-xs mt-1">Custom fittings available</p>
           </div>
 
-          <div className="space-y-8">
+          <div className="space-y-6">
             {/* Description */}
             <div>
-              <p className="text-pe-text-muted leading-relaxed font-light">{product.description}</p>
+              <p className="text-pe-text-muted text-sm leading-relaxed font-light">{product.description}</p>
             </div>
 
             {/* Details Grid */}
-            <div className="grid grid-cols-2 gap-y-6 gap-x-4 py-6 border-y border-pe-divider">
+            <div className="grid grid-cols-2 gap-y-5 gap-x-4 py-5 border-y border-pe-divider">
               <div>
-                <p className="text-xs uppercase tracking-widest text-pe-gold mb-1">Fabric</p>
-                <p className="font-medium text-sm text-pe-text">{product.fabric}</p>
+                <p className="text-[11px] uppercase tracking-widest text-pe-gold mb-1">Fabric</p>
+                <p className="font-medium text-[13px] text-pe-text">{product.fabric}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-widest text-pe-gold mb-1">Colors</p>
+                <p className="text-[11px] uppercase tracking-widest text-pe-gold mb-1">Colors</p>
                 <div className="flex items-center gap-2">
                   {product.colors.map(color => (
-                    <span key={color} className="font-medium text-sm text-pe-text">{color}</span>
+                    <span key={color} className="font-medium text-[13px] text-pe-text">{color}</span>
                   ))}
                 </div>
               </div>
               <div className="col-span-2">
-                <p className="text-xs uppercase tracking-widest text-pe-gold mb-2">Events</p>
+                <p className="text-[11px] uppercase tracking-widest text-pe-gold mb-2">Events</p>
                 <div className="flex flex-wrap gap-2">
                   {product.events.map(event => (
-                    <span key={event} className="px-3 py-1 bg-pe-surface border border-pe-divider rounded-full text-xs font-medium text-pe-text-muted">
+                    <span key={event} className="px-3 py-1 bg-pe-surface border border-pe-divider rounded-full text-[11px] font-medium text-pe-text-muted">
                       {event}
                     </span>
                   ))}
@@ -377,18 +377,18 @@ export default function ProductDetail() {
 
             {/* Sizes */}
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-xs uppercase tracking-widest font-medium text-pe-gold">Available Sizes</p>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[11px] uppercase tracking-widest font-medium text-pe-gold">Available Sizes</p>
                 <button 
                   onClick={() => setShowSizeGuide(true)}
-                  className="flex items-center gap-1 text-xs text-pe-text-muted hover:text-pe-text uppercase tracking-wider"
+                  className="flex items-center gap-1 text-[11px] text-pe-text-muted hover:text-pe-text uppercase tracking-wider"
                 >
                   <Ruler size={14} /> Size Guide
                 </button>
               </div>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2">
                 {product.sizes.map(size => (
-                  <div key={size} className="w-12 h-12 rounded-full border border-pe-divider flex items-center justify-center text-sm font-medium text-pe-text hover:border-pe-gold transition-colors cursor-pointer">
+                  <div key={size} className="w-10 h-10 rounded-full border border-pe-divider flex items-center justify-center text-xs font-medium text-pe-text hover:border-pe-gold transition-colors cursor-pointer">
                     {size}
                   </div>
                 ))}
@@ -398,7 +398,7 @@ export default function ProductDetail() {
             {/* Shop the Look */}
             {suggestedProducts.length > 0 && (
               <div className="pt-8 border-t border-pe-divider">
-                <h2 className="ipad-section-title mb-6 text-pe-gold">Shop the Look</h2>
+                <h2 className="text-lg font-semibold text-pe-gold mb-6">Shop the Look</h2>
                 <div className="flex overflow-x-auto gap-4 no-scrollbar pb-4">
                   {suggestedProducts.map(accessory => (
                     <Link key={accessory.id} to={`/product/${accessory.id}`} className="flex-shrink-0 w-36 group">
@@ -416,7 +416,7 @@ export default function ProductDetail() {
                         )}
                       </div>
                       <p className="font-medium text-sm truncate text-pe-text">{accessory.name}</p>
-                      <p className="text-[#d4af37] text-xs mt-1">Visit store for pricing</p>
+                      <p className="text-pe-gold text-xs mt-1">Visit store for pricing</p>
                     </Link>
                   ))}
                 </div>
@@ -425,14 +425,14 @@ export default function ProductDetail() {
           </div>
 
           {/* CTA */}
-          <div className="mt-12 md:mt-auto pt-8">
+          <div className="mt-8 md:mt-auto pt-6">
             <button 
               onClick={() => {
                 setTryOnSubmitted(false);
                 setTryOnForm({ name: '', phone: '', date: '' });
                 setShowTryModal(true);
               }}
-              className="w-full flex items-center justify-center bg-[#d4af37] text-black h-12 rounded-full text-[15px] font-medium hover:-translate-y-0.5 hover:brightness-110 transition-all duration-200"
+              className="ios-btn ios-btn-primary w-full h-11"
             >
               Request Try-On In Store
             </button>
@@ -460,7 +460,7 @@ export default function ProductDetail() {
             >
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h3 className="ipad-section-title text-pe-text">Size Guide</h3>
+                  <h3 className="text-lg font-semibold text-pe-text">Size Guide</h3>
                   <p className="text-pe-gold text-xs uppercase tracking-widest mt-1">{product.category}</p>
                 </div>
                 <button onClick={() => setShowSizeGuide(false)} className="p-2 text-pe-text-muted hover:text-pe-text">
@@ -498,7 +498,7 @@ export default function ProductDetail() {
               className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-pe-surface border border-pe-divider rounded-3xl z-50 p-6 shadow-2xl"
             >
               <div className="flex justify-between items-center mb-6">
-                <h3 className="ipad-section-title text-pe-text">Request Try-On In Store</h3>
+                <h3 className="text-lg font-semibold text-pe-text">Request Try-On In Store</h3>
                 <button onClick={() => setShowTryModal(false)} className="p-2 text-pe-text-muted hover:text-pe-text">
                   <X size={20} />
                 </button>
@@ -513,7 +513,7 @@ export default function ProductDetail() {
                   <p className="text-pe-text-muted">Our team will contact you shortly to arrange your visit.</p>
                   <button 
                     onClick={() => setShowTryModal(false)}
-                    className="mt-8 w-full ipad-button bg-pe-gold text-pe-dark text-[15px] font-medium"
+                    className="mt-8 w-full ios-btn ios-btn-primary"
                   >
                     Close
                   </button>
@@ -579,7 +579,7 @@ export default function ProductDetail() {
                   
                   <button 
                     type="submit"
-                    className="w-full mt-4 flex items-center justify-center bg-[#d4af37] text-black h-12 rounded-full text-[15px] font-medium hover:-translate-y-0.5 hover:brightness-110 transition-all duration-200"
+                    className="ios-btn ios-btn-primary w-full mt-4 h-12"
                   >
                     Confirm Visit Request
                   </button>

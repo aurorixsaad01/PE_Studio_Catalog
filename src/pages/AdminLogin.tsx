@@ -49,12 +49,12 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-pe-surface ipad-card p-8 shadow-2xl">
+      <div className="max-w-md w-full ios-card p-8 shadow-2xl">
         <div className="text-center mb-8">
           <div className="w-12 h-12 rounded-full bg-pe-surface flex items-center justify-center border border-pe-gold/20 mx-auto mb-4">
             <span className="text-pe-gold font-serif font-bold text-xl">PE</span>
           </div>
-          <h1 className="ipad-page-title text-pe-text">Admin Control Panel</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-pe-text tracking-tight">Admin Control Panel</h1>
           <p className="text-[15px] text-pe-text-muted mt-2">Sign in to manage the application.</p>
         </div>
 
@@ -92,7 +92,7 @@ export default function AdminLogin() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full ipad-button bg-pe-gold text-pe-dark text-[15px] font-medium flex items-center justify-center disabled:opacity-50"
+            className="w-full ios-btn ios-btn-primary flex items-center justify-center disabled:opacity-50"
           >
             {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Sign In'}
           </button>

@@ -57,9 +57,9 @@ export default function Login() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-      <div className="max-w-md w-full bg-pe-surface ipad-card p-8 shadow-2xl">
+      <div className="max-w-md w-full ios-card p-8 shadow-2xl">
         <div className="text-center mb-8">
-          <h1 className="ipad-page-title text-pe-text">Welcome Back</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-pe-text tracking-tight">Welcome Back</h1>
           <p className="text-[15px] text-pe-text-muted mt-2">Sign in to your account</p>
         </div>
 
@@ -97,7 +97,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full ipad-button bg-pe-gold text-pe-dark text-[15px] font-medium flex items-center justify-center disabled:opacity-50"
+            className="w-full ios-btn ios-btn-primary flex items-center justify-center disabled:opacity-50"
           >
             {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Sign In'}
           </button>
@@ -112,7 +112,7 @@ export default function Login() {
         <button
           onClick={handleGoogleLogin}
           disabled={isSubmitting}
-          className="mt-6 w-full ipad-button bg-white text-black text-[15px] font-medium flex items-center justify-center gap-3 disabled:opacity-50"
+          className="mt-6 w-full ios-btn bg-white text-black flex items-center justify-center gap-3 disabled:opacity-50"
         >
           <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
           Google

@@ -129,7 +129,7 @@ export default function Profile() {
         
         {/* Sidebar */}
         <div className="w-full md:w-64 flex-shrink-0">
-          <div className="bg-pe-surface ipad-card p-6 sticky top-24">
+          <div className="bg-pe-surface ios-card p-6 sticky top-24">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-12 h-12 rounded-full bg-pe-surface flex items-center justify-center text-pe-gold text-xl font-medium">
                 {userProfile.name ? userProfile.name.charAt(0).toUpperCase() : <User size={24} />}
@@ -186,16 +186,16 @@ export default function Profile() {
         <div className="flex-1">
           {activeTab === 'saved' && (
             <div>
-              <h2 className="ipad-section-title text-pe-text mb-6">Saved Outfits</h2>
+              <h2 className="text-2xl font-bold text-pe-text mb-6">Saved Outfits</h2>
               {isLoadingSaved ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="animate-spin text-pe-gold" size={32} />
                 </div>
               ) : savedProducts.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-[24px]">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
                   {savedProducts.map((product) => (
                     <Link key={product.id} to={`/product/${product.id}`} className="group block relative overflow-hidden bg-pe-surface rounded-[16px]">
-                      <div className="aspect-[3/4] w-full overflow-hidden">
+                      <div className="aspect-[4/5] md:aspect-[3/4] w-full overflow-hidden">
                         {product.images?.[0] ? (
                           <ProductImage
                             src={product.images[0]}
@@ -209,22 +209,22 @@ export default function Profile() {
                         )}
                       </div>
                       <div 
-                        className="absolute inset-0 flex flex-col justify-end p-4"
+                        className="absolute inset-0 flex flex-col justify-end p-3 md:p-4"
                         style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)' }}
                       >
-                        <p className="text-white font-medium text-lg leading-tight">{product.name}</p>
-                        <p className="text-[#d4af37] font-medium text-[14px] tracking-[0.02em] mt-2">Visit store for pricing</p>
-                        <p className="text-white/70 text-[12px] mt-1">Custom fittings available</p>
+                        <p className="text-white font-medium text-sm md:text-base leading-tight truncate">{product.name}</p>
+                        <p className="text-pe-gold font-medium text-xs md:text-sm tracking-[0.02em] mt-1 md:mt-2">Visit store for pricing</p>
+                        <p className="text-white/70 text-[10px] md:text-xs mt-1">Custom fittings available</p>
                       </div>
                     </Link>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 bg-pe-surface ipad-card">
+                <div className="text-center py-12 bg-pe-surface ios-card">
                   <Heart size={48} className="mx-auto text-pe-text-muted mb-4" />
-                  <h3 className="ipad-section-title text-pe-text mb-2">No saved outfits yet</h3>
+                  <h3 className="text-xl font-bold text-pe-text mb-2">No saved outfits yet</h3>
                   <p className="text-[15px] text-pe-text-muted mb-6">Explore our collections and save your favorites.</p>
-                  <Link to="/collections" className="inline-block ipad-button bg-pe-gold text-pe-dark text-[15px] font-medium">
+                  <Link to="/collections" className="inline-block ios-btn ios-btn-primary">
                     Explore Collections
                   </Link>
                 </div>
@@ -234,10 +234,10 @@ export default function Profile() {
 
           {activeTab === 'uploads' && (
             <div>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="ipad-section-title text-pe-text">My Gallery Uploads</h2>
-                <Link to="/gallery" className="ipad-button bg-pe-gold text-pe-dark text-[13px] font-medium">
-                  <ImageIcon size={16} className="mr-2" />
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <h2 className="text-2xl font-bold text-pe-text">My Gallery Uploads</h2>
+                <Link to="/gallery" className="px-4 py-2 bg-pe-gold text-pe-dark rounded-full text-xs font-medium flex items-center justify-center w-fit">
+                  <ImageIcon size={14} className="mr-2" />
                   <span>Upload Photo</span>
                 </Link>
               </div>
@@ -246,15 +246,15 @@ export default function Profile() {
                   <Loader2 className="animate-spin text-pe-gold" size={32} />
                 </div>
               ) : galleryUploads.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
                   {galleryUploads.map((post) => (
                     <div key={post.id} className="group block relative">
-                      <div className="aspect-[3/4] bg-pe-surface mb-4 relative ipad-card">
+                      <div className="aspect-[4/5] md:aspect-[3/4] bg-pe-surface mb-2 md:mb-4 relative ios-card overflow-hidden rounded-[12px] md:rounded-[16px]">
                         {post.images?.[0] ? (
                           <ProductImage
                             src={post.images[0]}
                             alt={post.groomName}
-                            className="w-full h-full object-cover ipad-card-img"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-pe-text-muted">
@@ -263,27 +263,27 @@ export default function Profile() {
                         )}
                         <div className="absolute top-2 right-2">
                           {post.approved ? (
-                            <span className="px-3 py-1 bg-green-500/80 backdrop-blur-md text-white text-[13px] font-medium rounded-full">
+                            <span className="px-2 py-1 bg-green-500/80 backdrop-blur-md text-white text-[10px] md:text-[11px] font-medium rounded-full">
                               Approved
                             </span>
                           ) : (
-                            <span className="px-3 py-1 bg-yellow-500/80 backdrop-blur-md text-white text-[13px] font-medium rounded-full">
+                            <span className="px-2 py-1 bg-yellow-500/80 backdrop-blur-md text-white text-[10px] md:text-[11px] font-medium rounded-full">
                               Pending
                             </span>
                           )}
                         </div>
                       </div>
-                      <h3 className="ipad-card-title text-pe-text truncate">{post.groomName}</h3>
-                      <p className="text-pe-text-muted text-[13px] mt-1">{new Date(post.createdAt).toLocaleDateString()}</p>
+                      <h3 className="text-sm md:text-base font-medium text-pe-text truncate">{post.groomName}</h3>
+                      <p className="text-pe-text-muted text-[11px] md:text-xs mt-1">{new Date(post.createdAt).toLocaleDateString()}</p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 bg-pe-surface ipad-card">
+                <div className="text-center py-12 bg-pe-surface ios-card">
                   <ImageIcon size={48} className="mx-auto text-pe-text-muted mb-4" />
-                  <h3 className="ipad-section-title text-pe-text mb-2">Share your special moments</h3>
+                  <h3 className="text-xl font-bold text-pe-text mb-2">Share your special moments</h3>
                   <p className="text-[15px] text-pe-text-muted mb-6">Upload photos of you wearing Pune Ethnic to be featured in our Grooms Gallery.</p>
-                  <Link to="/gallery" className="inline-block ipad-button bg-pe-gold text-pe-dark text-[15px] font-medium">
+                  <Link to="/gallery" className="inline-block ios-btn ios-btn-primary">
                     Go to Gallery
                   </Link>
                 </div>
@@ -293,8 +293,8 @@ export default function Profile() {
 
           {activeTab === 'settings' && (
             <div>
-              <h2 className="ipad-section-title text-pe-text mb-6">Account Settings</h2>
-              <div className="bg-pe-surface ipad-card p-6 md:p-8">
+              <h2 className="text-2xl font-bold text-pe-text mb-6">Account Settings</h2>
+              <div className="bg-pe-surface ios-card p-6 md:p-8">
                 <div className="space-y-6 max-w-md">
                   <div>
                     <label className="block text-[13px] font-medium text-pe-text-muted mb-2">Full Name</label>
@@ -338,7 +338,7 @@ export default function Profile() {
                         <button
                           onClick={handleSaveProfile}
                           disabled={isSavingProfile || !editName.trim()}
-                          className="flex-1 ipad-button bg-pe-gold text-pe-dark text-[15px] font-medium disabled:opacity-50 flex justify-center items-center"
+                          className="flex-1 ios-btn ios-btn-primary disabled:opacity-50 flex justify-center items-center"
                         >
                           {isSavingProfile ? <Loader2 className="animate-spin" size={18} /> : 'Save Changes'}
                         </button>
@@ -346,7 +346,7 @@ export default function Profile() {
                     ) : (
                       <button
                         onClick={() => setIsEditingProfile(true)}
-                        className="w-full ipad-button bg-pe-gold text-pe-dark text-[15px] font-medium"
+                        className="w-full ios-btn ios-btn-primary"
                       >
                         Edit Profile
                       </button>

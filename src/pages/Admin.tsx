@@ -223,11 +223,11 @@ export default function Admin() {
   return (
     <div className="px-4 py-6 md:py-8 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="font-serif text-3xl md:text-4xl text-pe-text">Admin Dashboard</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-pe-text tracking-tight">Admin Dashboard</h1>
         <div className="flex items-center gap-4">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-pe-surface text-pe-text text-sm uppercase tracking-widest font-medium hover:bg-black/20 border border-pe-divider transition-colors"
+            className="ios-btn ios-btn-secondary flex items-center gap-2"
           >
             <LogOut size={16} />
             <span className="hidden md:inline">Logout</span>
@@ -235,7 +235,7 @@ export default function Admin() {
           {activeTab === 'products' && (
             <button 
               onClick={handleCreate}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-pe-gold text-pe-dark text-sm uppercase tracking-widest font-medium hover:bg-pe-gold-light transition-colors"
+              className="ios-btn ios-btn-primary flex items-center gap-2"
             >
               <Plus size={16} />
               <span className="hidden md:inline">Add Product</span>
@@ -244,10 +244,10 @@ export default function Admin() {
         </div>
       </div>
 
-      <div className="flex border-b border-pe-divider mb-8">
+      <div className="flex overflow-x-auto no-scrollbar border-b border-pe-divider mb-8">
         <button
           onClick={() => setActiveTab('products')}
-          className={`px-6 py-3 text-sm uppercase tracking-widest font-medium transition-colors border-b-2 ${
+          className={`flex-shrink-0 px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
             activeTab === 'products' ? 'border-pe-gold text-pe-gold' : 'border-transparent text-pe-text-muted hover:text-pe-text'
           }`}
         >
@@ -255,7 +255,7 @@ export default function Admin() {
         </button>
         <button
           onClick={() => setActiveTab('events')}
-          className={`px-6 py-3 text-sm uppercase tracking-widest font-medium transition-colors border-b-2 ${
+          className={`flex-shrink-0 px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
             activeTab === 'events' ? 'border-pe-gold text-pe-gold' : 'border-transparent text-pe-text-muted hover:text-pe-text'
           }`}
         >
@@ -263,7 +263,7 @@ export default function Admin() {
         </button>
         <button
           onClick={() => setActiveTab('gallery')}
-          className={`px-6 py-3 text-sm uppercase tracking-widest font-medium transition-colors border-b-2 ${
+          className={`flex-shrink-0 px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
             activeTab === 'gallery' ? 'border-pe-gold text-pe-gold' : 'border-transparent text-pe-text-muted hover:text-pe-text'
           }`}
         >
@@ -271,7 +271,7 @@ export default function Admin() {
         </button>
         <button
           onClick={() => setActiveTab('hero')}
-          className={`px-6 py-3 text-sm uppercase tracking-widest font-medium transition-colors border-b-2 ${
+          className={`flex-shrink-0 px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
             activeTab === 'hero' ? 'border-pe-gold text-pe-gold' : 'border-transparent text-pe-text-muted hover:text-pe-text'
           }`}
         >
@@ -282,8 +282,8 @@ export default function Admin() {
       {activeTab === 'products' ? (
         <>
           {/* Product List */}
-      <div className="bg-pe-surface rounded-2xl shadow-sm border border-pe-divider overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="ios-card p-0 overflow-hidden">
+        <div className="overflow-x-auto no-scrollbar">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-pe-surface/50 border-b border-pe-divider">
@@ -657,7 +657,7 @@ export default function Admin() {
       ) : activeTab === 'events' ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {eventCategories.map(event => (
-            <div key={event.name} className="bg-pe-surface border border-pe-divider rounded-2xl overflow-hidden shadow-sm">
+            <div key={event.name} className="ios-card p-0 overflow-hidden">
               <div className="aspect-[4/3] bg-pe-surface relative group">
                 {event.image ? (
                   <ProductImage src={event.image} alt={event.name} className="w-full h-full object-cover" />
@@ -667,7 +667,7 @@ export default function Admin() {
                   </div>
                 )}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <label className="cursor-pointer px-4 py-2 bg-pe-gold text-pe-dark rounded-full text-sm font-medium uppercase tracking-widest hover:bg-pe-gold-light transition-colors">
+                  <label className="cursor-pointer ios-btn ios-btn-primary">
                     {isUploading ? 'Uploading...' : 'Upload Image'}
                     <input
                       type="file"
@@ -680,7 +680,7 @@ export default function Admin() {
                 </div>
               </div>
               <div className="p-4">
-                <h3 className="font-serif text-xl text-pe-text mb-1">{event.name}</h3>
+                <h3 className="text-lg font-semibold text-pe-text mb-1">{event.name}</h3>
                 <p className="text-sm text-pe-gold uppercase tracking-widest">{event.subtitle}</p>
               </div>
             </div>
@@ -753,8 +753,8 @@ function HeroVideoManager() {
   };
 
   return (
-    <div className="bg-pe-surface rounded-2xl shadow-sm border border-pe-divider overflow-hidden p-6 max-w-2xl mx-auto">
-      <h2 className="font-serif text-2xl text-pe-text mb-6">Hero Video Settings</h2>
+    <div className="ios-card max-w-2xl mx-auto">
+      <h2 className="text-xl font-semibold text-pe-text mb-6">Hero Video Settings</h2>
       
       <div className="space-y-6">
         <div>
@@ -914,19 +914,19 @@ function GalleryModeration() {
       {deleteConfirmId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setDeleteConfirmId(null)} />
-          <div className="relative bg-pe-surface border border-pe-divider rounded-2xl p-6 max-w-sm w-full shadow-2xl">
-            <h3 className="text-xl font-serif text-pe-text mb-4">Delete Post?</h3>
+          <div className="relative ios-card p-6 max-w-sm w-full shadow-2xl">
+            <h3 className="text-xl font-semibold text-pe-text mb-4">Delete Post?</h3>
             <p className="text-pe-text-muted mb-6">Are you sure you want to delete this gallery post? This action cannot be undone.</p>
             <div className="flex gap-4">
               <button
                 onClick={() => setDeleteConfirmId(null)}
-                className="flex-1 py-2 rounded-xl text-sm font-medium bg-pe-surface text-pe-text border border-pe-divider hover:border-pe-gold transition-colors"
+                className="flex-1 ios-btn ios-btn-secondary"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleDelete(deleteConfirmId)}
-                className="flex-1 py-2 rounded-xl text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
+                className="flex-1 py-3 rounded-xl text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
               >
                 Delete
               </button>
@@ -936,13 +936,13 @@ function GalleryModeration() {
       )}
 
       {posts.length === 0 ? (
-        <div className="text-center py-12 border border-pe-divider rounded-2xl bg-pe-surface/30">
+        <div className="text-center py-12 ios-card bg-pe-surface/30">
           <p className="text-pe-text-muted">No gallery posts found.</p>
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {posts.map(post => (
-            <div key={post.id} className="bg-pe-surface border border-pe-divider rounded-2xl overflow-hidden shadow-sm flex flex-col">
+            <div key={post.id} className="ios-card p-0 overflow-hidden flex flex-col">
               <div className="aspect-[4/5] bg-pe-surface relative">
                 <ProductImage src={post.images[0]} alt="" className="w-full h-full object-cover" />
                 <div className="absolute top-2 right-2 flex gap-2">
@@ -953,24 +953,24 @@ function GalleryModeration() {
               </div>
               <div className="p-4 flex-1 flex flex-col">
                 <div className="mb-4">
-                  <h3 className="font-serif text-lg text-pe-text">{post.groomName}</h3>
+                  <h3 className="text-lg font-semibold text-pe-text">{post.groomName}</h3>
                   <p className="text-xs text-pe-text-muted uppercase tracking-wider mb-2">{post.outfitCategory} • {new Date(post.weddingDate).toLocaleDateString()}</p>
                   <p className="text-sm text-pe-text line-clamp-3">{post.caption}</p>
                 </div>
                 <div className="mt-auto pt-4 border-t border-pe-divider flex gap-2">
                   <button
                     onClick={() => handleApprove(post.id, !post.approved)}
-                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`flex-1 ios-btn ${
                       post.approved 
-                        ? 'bg-pe-surface text-pe-text border border-pe-divider hover:border-pe-gold' 
-                        : 'bg-pe-gold text-pe-dark hover:bg-pe-gold-light'
+                        ? 'ios-btn-secondary' 
+                        : 'ios-btn-primary'
                     }`}
                   >
                     {post.approved ? 'Unapprove' : 'Approve'}
                   </button>
                   <button
                     onClick={() => setDeleteConfirmId(post.id)}
-                    className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors"
+                    className="p-3 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center"
                   >
                     <Trash2 size={20} />
                   </button>
