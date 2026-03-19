@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Image as ImageIcon, X, Upload, ChevronLeft, ChevronRight, Loader2, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useStore } from '../store';
 import { Category, EventType, Product, GalleryPost } from '../types';
@@ -203,6 +203,13 @@ export default function Admin() {
     setIsUploading(true);
     try {
       const uploadedUrl = await uploadImageToCloudinary(file);
+      const updatedCategories = eventCategories.map(e => e.name === eventName ? { ...e, image: uploadedUrl } : e);
+      
+      // Update Firestore
+      await setDoc(doc(db, 'settings', 'global'), { 
+        eventCategories: updatedCategories 
+      }, { merge: true });
+      
       updateEventCategory(eventName, uploadedUrl);
     } catch (error) {
       console.error('Upload error:', error);
@@ -712,6 +719,12 @@ function HeroVideoManager() {
     try {
       const uploadedUrl = await uploadVideoToCloudinary(file);
       setVideoUrl(uploadedUrl);
+      
+      // Update Firestore
+      await setDoc(doc(db, 'settings', 'global'), { 
+        heroVideo: uploadedUrl 
+      }, { merge: true });
+      
       updateHeroVideo(uploadedUrl);
     } catch (error) {
       console.error('Video upload error:', error);
@@ -722,10 +735,20 @@ function HeroVideoManager() {
     }
   };
 
-  const handleUrlSave = () => {
+  const handleUrlSave = async () => {
     if (videoUrl) {
-      updateHeroVideo(videoUrl);
-      alert('Hero video updated successfully!');
+      try {
+        // Update Firestore
+        await setDoc(doc(db, 'settings', 'global'), { 
+          heroVideo: videoUrl 
+        }, { merge: true });
+        
+        updateHeroVideo(videoUrl);
+        alert('Hero video updated successfully!');
+      } catch (error) {
+        console.error('Error saving video URL:', error);
+        alert('Failed to save video URL.');
+      }
     }
   };
 

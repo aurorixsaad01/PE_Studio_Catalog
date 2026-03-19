@@ -6,10 +6,10 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, doc } from 'firebase/firestore';
 import { db } from './firebase';
 import { useStore } from './store';
-import { Product } from './types';
+import { Product, EventCategory } from './types';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
@@ -55,10 +55,12 @@ const SplashScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const setProducts = useStore(state => state.setProducts);
+  const setEventCategories = useStore(state => state.setEventCategories);
+  const setHeroVideo = useStore(state => state.setHeroVideo);
 
   useEffect(() => {
     const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribeProducts = onSnapshot(q, (snapshot) => {
       const productsData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -68,8 +70,31 @@ export default function App() {
       console.error("Error fetching products:", error);
     });
 
-    return () => unsubscribe();
-  }, [setProducts]);
+    const unsubscribeSettings = onSnapshot(doc(db, 'settings', 'global'), (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        if (data.heroVideo) setHeroVideo(data.heroVideo);
+        if (data.eventCategories) setEventCategories(data.eventCategories);
+      }
+    }, (error) => {
+      const errInfo = {
+        error: error.message,
+        authInfo: {
+          userId: auth.currentUser?.uid,
+          email: auth.currentUser?.email,
+          emailVerified: auth.currentUser?.emailVerified,
+        },
+        operationType: 'get',
+        path: 'settings/global'
+      };
+      console.error("Error fetching settings:", JSON.stringify(errInfo));
+    });
+
+    return () => {
+      unsubscribeProducts();
+      unsubscribeSettings();
+    };
+  }, [setProducts, setEventCategories, setHeroVideo]);
 
   // Fallback timer in case video fails to load or play
   useEffect(() => {
