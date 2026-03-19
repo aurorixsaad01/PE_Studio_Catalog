@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { collection, onSnapshot, query, orderBy, doc } from 'firebase/firestore';
-import { db } from './firebase';
+import { db, auth } from './firebase';
 import { useStore } from './store';
 import { Product, EventCategory } from './types';
 import Layout from './components/Layout';

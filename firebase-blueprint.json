@@ -65,6 +65,10 @@
     "gallery_posts/{postId}": {
       "schema": "GalleryPost",
       "description": "Stores all gallery posts submitted by users."
+    },
+    "settings/{settingId}": {
+      "schema": "object",
+      "description": "Stores global application settings."
     }
   }
 }
