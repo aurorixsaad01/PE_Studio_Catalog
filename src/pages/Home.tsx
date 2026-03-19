@@ -1,9 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
-import { Filter, X, ChevronDown, ArrowRight } from 'lucide-react';
+import { Filter, X, ChevronDown, ArrowRight, Loader2 } from 'lucide-react';
+import { collection, query, where, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
 import { useStore } from '../store';
-import { Category, EventType } from '../types';
+import { Category, EventType, GalleryPost } from '../types';
 import ProductImage from '../components/ProductImage';
 
 const CATEGORIES: Category[] = ['Sherwani', 'Jodhpuri Suit', 'Indo-Western', 'Tuxedo', 'Kurta', 'Accessories'];
@@ -21,6 +23,38 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'All'>('All');
   const [selectedEvent, setSelectedEvent] = useState<EventType | 'All'>('All');
   const [selectedColor, setSelectedColor] = useState<string | 'All'>('All');
+  
+  // Gallery Posts State
+  const [galleryPosts, setGalleryPosts] = useState<GalleryPost[]>([]);
+  const [galleryLoading, setGalleryLoading] = useState(true);
+
+  useEffect(() => {
+    const q = query(
+      collection(db, 'gallery_posts'),
+      where('approved', '==', true),
+      orderBy('createdAt', 'desc'),
+      limit(4)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const posts = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as GalleryPost[];
+      setGalleryPosts(posts);
+      setGalleryLoading(false);
+    }, (error) => {
+      console.error("Error fetching gallery posts:", error);
+      setGalleryLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const formatDate = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase();
+  };
 
   useEffect(() => {
     const eventParam = searchParams.get('event');
@@ -331,23 +365,39 @@ export default function Home() {
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-            {[
-              "",
-              "",
-              "",
-              ""
-            ].map((img, i) => (
-              <div key={i} className={`relative rounded-xl overflow-hidden aspect-[3/4] bg-pe-surface border border-pe-divider ${i % 2 === 0 ? 'md:translate-y-4' : 'md:-translate-y-4'}`}>
-                {img ? (
-                  <ProductImage src={img} alt="Real Groom" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-pe-text-muted text-sm">
-                    Coming Soon
+            {galleryLoading ? (
+              [...Array(4)].map((_, i) => (
+                <div key={i} className={`relative rounded-xl overflow-hidden aspect-[3/4] bg-pe-surface border border-pe-divider animate-shimmer ${i % 2 === 0 ? 'md:translate-y-4' : 'md:-translate-y-4'}`} />
+              ))
+            ) : galleryPosts.length > 0 ? (
+              galleryPosts.map((post, i) => (
+                <div key={post.id} className={`relative rounded-xl overflow-hidden aspect-[3/4] bg-pe-surface border border-pe-divider group ${i % 2 === 0 ? 'md:translate-y-4' : 'md:-translate-y-4'}`}>
+                  {post.images?.[0] ? (
+                    <ProductImage 
+                      src={post.images[0]} 
+                      alt={post.groomName} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-pe-text-muted text-sm">
+                      No Image
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-x-0 bottom-0 p-4 text-left">
+                    <p className="text-white font-serif text-lg leading-tight mb-1">{post.groomName}</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-pe-gold text-[10px] uppercase tracking-wider font-medium">{post.outfitCategory}</p>
+                      <p className="text-white/60 text-[10px] uppercase tracking-wider">{formatDate(post.createdAt)}</p>
+                    </div>
                   </div>
-                )}
-                <div className="absolute inset-0 bg-black/20 hover:bg-transparent transition-colors duration-500" />
+                </div>
+              ))
+            ) : (
+              <div className="col-span-2 md:col-span-4 py-12 text-center text-pe-text-muted">
+                <p className="text-lg font-serif">Be the first groom to be featured ✨</p>
               </div>
-            ))}
+            )}
           </div>
 
           <Link 

@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
-import { Home, Grid, Heart, Settings, Image as ImageIcon, Briefcase } from 'lucide-react';
+import { Home, Grid, Heart, Settings, Image as ImageIcon, Briefcase, MapPin } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { useAuth } from '../contexts/AuthContext';
@@ -23,12 +23,17 @@ export default function Layout() {
             <img src="https://res.cloudinary.com/dqxlc84z6/image/upload/v1773854426/Gemini_Generated_Image_hfx07ahfx07ahfx0_bnzxnh.png" alt="Pune Ethnic Logo" className="h-8 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity rounded-md" />
             <span className="font-serif font-semibold text-lg tracking-[0.05em] uppercase text-pe-text group-hover:text-pe-gold transition-colors">Pune Ethnic</span>
           </div>
+
+          <NavLink to="/reach-us" className={({isActive}) => cn("md:hidden p-2 transition-colors", isActive ? "text-pe-gold" : "text-pe-text-muted")}>
+            <MapPin size={22} />
+          </NavLink>
           
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-8">
             <NavLink to="/discover" className={({isActive}) => cn("text-[15px] font-medium transition-colors hover:text-pe-gold", isActive ? "text-pe-gold" : "text-pe-text-muted")}>Discover</NavLink>
             <NavLink to="/categories" className={({isActive}) => cn("text-[15px] font-medium transition-colors hover:text-pe-gold", isActive ? "text-pe-gold" : "text-pe-text-muted")}>Categories</NavLink>
             <NavLink to="/gallery" className={({isActive}) => cn("text-[15px] font-medium transition-colors hover:text-pe-gold", isActive ? "text-pe-gold" : "text-pe-text-muted")}>Gallery</NavLink>
+            <NavLink to="/reach-us" className={({isActive}) => cn("text-[15px] font-medium transition-colors hover:text-pe-gold", isActive ? "text-pe-gold" : "text-pe-text-muted")}>Reach Us</NavLink>
             <NavLink to="/collections" className={({isActive}) => cn("text-[15px] font-medium transition-colors hover:text-pe-gold", isActive ? "text-pe-gold" : "text-pe-text-muted")}>Saved</NavLink>
             <NavLink to="/profile" className={({isActive}) => cn("text-[15px] font-medium transition-colors hover:text-pe-gold", isActive ? "text-pe-gold" : "text-pe-text-muted")}>Profile</NavLink>
             {userProfile?.role === 'admin' && (
@@ -79,6 +84,14 @@ export default function Layout() {
                 <>
                   <ImageIcon size={20} strokeWidth={isActive ? 2.5 : 2} />
                   <span className="text-[10px] uppercase tracking-wider font-medium">Gallery</span>
+                </>
+              )}
+            </NavLink>
+            <NavLink to="/reach-us" className={({isActive}) => cn("flex flex-col items-center gap-1 p-2 transition-colors", isActive ? "text-pe-gold" : "text-pe-text-muted hover:text-pe-text")}>
+              {({isActive}) => (
+                <>
+                  <MapPin size={20} strokeWidth={isActive ? 2.5 : 2} />
+                  <span className="text-[10px] uppercase tracking-wider font-medium">Reach</span>
                 </>
               )}
             </NavLink>
