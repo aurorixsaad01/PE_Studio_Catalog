@@ -314,27 +314,28 @@ function UploadModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
           {step === 'form' && (
             <form id="upload-form" onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-[13px] font-medium text-pe-gold mb-2">Groom Name</label>
+                <div className="ios-input-group">
                   <input
                     type="text"
                     required
                     maxLength={50}
                     value={formData.groomName}
                     onChange={e => setFormData({ ...formData, groomName: e.target.value })}
-                    className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-[15px] text-pe-text"
-                    placeholder="e.g. Rahul Sharma"
+                    className="ios-input"
+                    placeholder="Groom Name"
                   />
+                  <label>Groom Name</label>
                 </div>
-                <div>
-                  <label className="block text-[13px] font-medium text-pe-gold mb-2">Wedding Date</label>
+                <div className="ios-input-group">
                   <input
                     type="date"
                     required
                     value={formData.weddingDate}
                     onChange={e => setFormData({ ...formData, weddingDate: e.target.value })}
-                    className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-[15px] text-pe-text [color-scheme:dark]"
+                    className="ios-input [color-scheme:dark]"
+                    placeholder="Wedding Date"
                   />
+                  <label>Wedding Date</label>
                 </div>
               </div>
 

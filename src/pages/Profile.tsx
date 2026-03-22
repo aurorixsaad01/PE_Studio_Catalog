@@ -296,24 +296,26 @@ export default function Profile() {
               <h2 className="text-2xl font-bold text-pe-text mb-6">Account Settings</h2>
               <div className="bg-pe-surface ios-card p-6 md:p-8">
                 <div className="space-y-6 max-w-md">
-                  <div>
-                    <label className="block text-[13px] font-medium text-pe-text-muted mb-2">Full Name</label>
+                  <div className="ios-input-group">
                     <input
                       type="text"
                       disabled={!isEditingProfile}
                       value={isEditingProfile ? editName : (userProfile.name || '')}
                       onChange={(e) => setEditName(e.target.value)}
-                      className={`w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl text-sm text-pe-text ${!isEditingProfile ? 'opacity-70 cursor-not-allowed' : 'focus:outline-none focus:border-pe-gold'}`}
+                      className={`ios-input ${!isEditingProfile ? 'opacity-70 cursor-not-allowed' : ''}`}
+                      placeholder="Full Name"
                     />
+                    <label>Full Name</label>
                   </div>
-                  <div>
-                    <label className="block text-[13px] font-medium text-pe-text-muted mb-2">Email Address</label>
+                  <div className="ios-input-group">
                     <input
                       type="email"
                       disabled
                       value={userProfile.email || ''}
-                      className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl text-[15px] text-pe-text opacity-70 cursor-not-allowed"
+                      className="ios-input opacity-70 cursor-not-allowed"
+                      placeholder="Email Address"
                     />
+                    <label>Email Address</label>
                     <p className="text-[13px] text-pe-text-muted mt-2">Email address cannot be changed.</p>
                   </div>
                   <div>

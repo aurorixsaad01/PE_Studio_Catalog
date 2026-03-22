@@ -72,41 +72,41 @@ export default function Signup() {
         )}
 
         <form onSubmit={handleSignup} className="space-y-6">
-          <div>
-            <label className="block text-[13px] font-medium text-pe-gold mb-2">Full Name</label>
+          <div className="ios-input-group">
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-[15px] text-pe-text"
-              placeholder="Rahul Sharma"
+              className="ios-input"
+              placeholder="Full Name"
             />
+            <label>Full Name</label>
           </div>
 
-          <div>
-            <label className="block text-[13px] font-medium text-pe-gold mb-2">Email Address</label>
+          <div className="ios-input-group">
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-[15px] text-pe-text"
-              placeholder="you@example.com"
+              className="ios-input"
+              placeholder="Email Address"
             />
+            <label>Email Address</label>
           </div>
 
-          <div>
-            <label className="block text-[13px] font-medium text-pe-gold mb-2">Password</label>
+          <div className="ios-input-group">
             <input
               type="password"
               required
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-[15px] text-pe-text"
-              placeholder="••••••••"
+              className="ios-input"
+              placeholder="Password"
             />
+            <label>Password</label>
           </div>
 
           <button

@@ -65,28 +65,28 @@ export default function AdminLogin() {
         )}
 
         <form onSubmit={handleLogin} className="space-y-6">
-          <div>
-            <label className="block text-[13px] font-medium text-pe-gold mb-2">Email Address</label>
+          <div className="ios-input-group">
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-[15px] text-pe-text"
-              placeholder="admin@puneethnic.com"
+              className="ios-input"
+              placeholder="Email Address"
             />
+            <label>Email Address</label>
           </div>
 
-          <div>
-            <label className="block text-[13px] font-medium text-pe-gold mb-2">Password</label>
+          <div className="ios-input-group">
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-pe-surface border border-pe-divider rounded-xl focus:outline-none focus:border-pe-gold text-[15px] text-pe-text"
-              placeholder="••••••••"
+              className="ios-input"
+              placeholder="Password"
             />
+            <label>Password</label>
           </div>
 
           <button

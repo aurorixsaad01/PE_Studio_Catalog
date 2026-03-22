@@ -66,6 +66,7 @@ export default function Home() {
   const { scrollY } = useScroll();
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
   const heroY = useTransform(scrollY, [0, 400], [0, 50]);
+  const heroScale = useTransform(scrollY, [0, 400], [1, 1.1]);
 
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
@@ -91,7 +92,8 @@ export default function Home() {
         className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[100dvh] -mt-16 mb-16 overflow-hidden bg-black"
       >
         {heroVideo ? (
-          <video 
+          <motion.video 
+            style={{ scale: heroScale }}
             autoPlay 
             muted 
             loop 
@@ -102,7 +104,7 @@ export default function Home() {
             src={heroVideo}
           />
         ) : (
-          <div className="w-full h-full bg-pe-dark opacity-90" />
+          <motion.div style={{ scale: heroScale }} className="w-full h-full bg-pe-dark opacity-90" />
         )}
         <div 
           className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-b from-black/40 via-black/20 to-black/80"
@@ -334,7 +336,7 @@ export default function Home() {
               </div>
               {product.suggestedAccessories && product.suggestedAccessories.length > 0 && (
                 <div 
-                  className="absolute top-3 left-3 px-3 py-1.5 rounded-full z-10 ios-glass"
+                  className="absolute top-3 left-3 px-3 py-1.5 rounded-full z-10 ios-glass animate-shine"
                 >
                   <p className="text-[10px] font-medium text-white uppercase tracking-wider">Shop the Look</p>
                 </div>

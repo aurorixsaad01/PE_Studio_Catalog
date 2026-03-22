@@ -65,33 +65,45 @@ export default function Layout() {
           <div className="flex justify-around items-center h-14 px-2">
             <NavLink to="/discover" className={({isActive}) => cn("flex items-center justify-center w-full h-full transition-colors", isActive ? "text-pe-text" : "text-pe-text-muted")}>
               {({isActive}) => (
-                <Home size={24} strokeWidth={isActive ? 2.5 : 2} />
+                <motion.div animate={{ scale: isActive ? 1.1 : 1 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
+                  <Home size={24} strokeWidth={isActive ? 2.5 : 2} />
+                </motion.div>
               )}
             </NavLink>
             <NavLink to="/categories" className={({isActive}) => cn("flex items-center justify-center w-full h-full transition-colors", isActive ? "text-pe-text" : "text-pe-text-muted")}>
               {({isActive}) => (
-                <Search size={24} strokeWidth={isActive ? 2.5 : 2} />
+                <motion.div animate={{ scale: isActive ? 1.1 : 1 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
+                  <Search size={24} strokeWidth={isActive ? 2.5 : 2} />
+                </motion.div>
               )}
             </NavLink>
             <NavLink to="/gallery" className={({isActive}) => cn("flex items-center justify-center w-full h-full transition-colors", isActive ? "text-pe-text" : "text-pe-text-muted")}>
               {({isActive}) => (
-                <ImageIcon size={24} strokeWidth={isActive ? 2.5 : 2} />
+                <motion.div animate={{ scale: isActive ? 1.1 : 1 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
+                  <ImageIcon size={24} strokeWidth={isActive ? 2.5 : 2} />
+                </motion.div>
               )}
             </NavLink>
             <NavLink to="/collections" className={({isActive}) => cn("flex items-center justify-center w-full h-full transition-colors", isActive ? "text-pe-text" : "text-pe-text-muted")}>
               {({isActive}) => (
-                <Heart size={24} strokeWidth={isActive ? 2.5 : 2} />
+                <motion.div animate={{ scale: isActive ? 1.1 : 1 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
+                  <Heart size={24} strokeWidth={isActive ? 2.5 : 2} />
+                </motion.div>
               )}
             </NavLink>
             <NavLink to="/profile" className={({isActive}) => cn("flex items-center justify-center w-full h-full transition-colors", isActive ? "text-pe-text" : "text-pe-text-muted")}>
               {({isActive}) => (
-                <User size={24} strokeWidth={isActive ? 2.5 : 2} />
+                <motion.div animate={{ scale: isActive ? 1.1 : 1 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
+                  <User size={24} strokeWidth={isActive ? 2.5 : 2} />
+                </motion.div>
               )}
             </NavLink>
             {userProfile?.role === 'admin' && (
               <NavLink to="/manage-products" className={({isActive}) => cn("flex items-center justify-center w-full h-full transition-colors", isActive ? "text-pe-gold" : "text-pe-text-muted")}>
                 {({isActive}) => (
-                  <Briefcase size={24} strokeWidth={isActive ? 2.5 : 2} />
+                  <motion.div animate={{ scale: isActive ? 1.1 : 1 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
+                    <Briefcase size={24} strokeWidth={isActive ? 2.5 : 2} />
+                  </motion.div>
                 )}
               </NavLink>
             )}

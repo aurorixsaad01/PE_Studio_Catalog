@@ -542,39 +542,40 @@ export default function ProductDetail() {
                     </div>
                   </div>
                   
-                  <div>
-                    <label className="block text-sm font-medium text-pe-text-muted mb-1">Full Name</label>
+                  <div className="ios-input-group">
                     <input 
                       type="text" 
                       required
                       value={tryOnForm.name}
                       onChange={e => setTryOnForm({...tryOnForm, name: e.target.value})}
-                      className="w-full bg-pe-dark border border-pe-divider rounded-xl px-4 py-3 text-pe-text focus:outline-none focus:border-pe-gold transition-colors"
-                      placeholder="Enter your name"
+                      className="ios-input"
+                      placeholder="Full Name"
                     />
+                    <label>Full Name</label>
                   </div>
                   
-                  <div>
-                    <label className="block text-sm font-medium text-pe-text-muted mb-1">Phone Number</label>
+                  <div className="ios-input-group">
                     <input 
                       type="tel" 
                       required
                       value={tryOnForm.phone}
                       onChange={e => setTryOnForm({...tryOnForm, phone: e.target.value})}
-                      className="w-full bg-pe-dark border border-pe-divider rounded-xl px-4 py-3 text-pe-text focus:outline-none focus:border-pe-gold transition-colors"
-                      placeholder="Enter your phone number"
+                      className="ios-input"
+                      placeholder="Phone Number"
                     />
+                    <label>Phone Number</label>
                   </div>
                   
-                  <div>
-                    <label className="block text-sm font-medium text-pe-text-muted mb-1">Preferred Visit Date</label>
+                  <div className="ios-input-group">
                     <input 
                       type="date" 
                       required
                       value={tryOnForm.date}
                       onChange={e => setTryOnForm({...tryOnForm, date: e.target.value})}
-                      className="w-full bg-pe-dark border border-pe-divider rounded-xl px-4 py-3 text-pe-text focus:outline-none focus:border-pe-gold transition-colors"
+                      className="ios-input"
+                      placeholder="Preferred Visit Date"
                     />
+                    <label>Preferred Visit Date</label>
                   </div>
                   
                   <button 

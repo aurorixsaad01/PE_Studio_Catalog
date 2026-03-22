@@ -440,9 +440,14 @@ export default function Admin() {
                     <button
                       type="button"
                       onClick={() => setCurrentProduct({ ...currentProduct, featured: !currentProduct.featured })}
-                      className={`w-12 h-6 rounded-full transition-colors relative ${currentProduct.featured ? 'bg-pe-gold' : 'bg-pe-divider'}`}
+                      className={`w-12 h-6 rounded-full transition-colors relative flex items-center px-1 ${currentProduct.featured ? 'bg-pe-gold' : 'bg-pe-divider'}`}
                     >
-                      <div className={`w-4 h-4 rounded-full bg-pe-dark absolute top-1 transition-transform ${currentProduct.featured ? 'translate-x-7' : 'translate-x-1'}`} />
+                      <motion.div 
+                        layout
+                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        className="w-4 h-4 rounded-full bg-pe-dark" 
+                        style={{ marginLeft: currentProduct.featured ? 'auto' : '0' }}
+                      />
                     </button>
                     <label className="text-sm font-medium text-pe-text cursor-pointer" onClick={() => setCurrentProduct({ ...currentProduct, featured: !currentProduct.featured })}>
                       Set as Featured Product
